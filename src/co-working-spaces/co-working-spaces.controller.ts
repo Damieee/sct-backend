@@ -1,11 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CoWorkingSpacesService } from './co-working-spaces.service';
 import { CreateCoWorkingSpaceDto } from './dto/create-co-working-space.dto';
 import { UpdateCoWorkingSpaceDto } from './dto/update-co-working-space.dto';
 
 @Controller('co-working-spaces')
 export class CoWorkingSpacesController {
-  constructor(private readonly coWorkingSpacesService: CoWorkingSpacesService) {}
+  constructor(
+    private readonly coWorkingSpacesService: CoWorkingSpacesService,
+  ) {}
 
   @Post()
   create(@Body() createCoWorkingSpaceDto: CreateCoWorkingSpaceDto) {
@@ -23,7 +33,10 @@ export class CoWorkingSpacesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCoWorkingSpaceDto: UpdateCoWorkingSpaceDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateCoWorkingSpaceDto: UpdateCoWorkingSpaceDto,
+  ) {
     return this.coWorkingSpacesService.update(+id, updateCoWorkingSpaceDto);
   }
 
