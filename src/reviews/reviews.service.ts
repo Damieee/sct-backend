@@ -1,26 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateReviewDto } from './dto/create-review.dto';
-import { UpdateReviewDto } from './dto/update-review.dto';
+import { UpdateReviewDto } from './dto/update-review.dto'; // Assuming you have this DTO
+import { Review } from './entities/review.entity'; // Assuming you have this entity
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
-export class ReviewsService {
-  create(createReviewDto: CreateReviewDto) {
-    return 'This action adds a new review';
+export class ReviewService {
+  constructor(
+    @InjectRepository(Review)
+    private reviewRepository: Repository<Review>,
+  ) {}
+
+  async createReview(createReviewDto: CreateReviewDto): Promise<Review> {
+    const review = this.reviewRepository.create(createReviewDto);
+    await this.reviewRepository.save(review);
+    return review;
   }
 
-  findAll() {
-    return `This action returns all reviews`;
+  async getAllReviews(): Promise<Review[]> {
+    return this.reviewRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} review`;
+  async getReviewById(id: number): Promise<Review> {
+    const review = await this.reviewRepository.findOne(id);
+    if (!review) {
+      throw new NotFoundException(`Review with ID ${id} not found`);
+    }
+    return review;
   }
 
-  update(id: number, updateReviewDto: UpdateReviewDto) {
-    return `This action updates a #${id} review`;
+  async updateReview(id: number, updateReviewDto: UpdateReviewDto): Promise<Review> {
+    const review = await this.reviewRepository.preload({
+      id,
+      ...updateReviewDto,
+    });
+
+    if (!review) {
+      throw new NotFoundException(`Review with ID ${id} not found`);
+    }
+
+    return this.reviewRepository.save(review);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} review`;
+  async deleteReview(id: number): Promise<string> {
+    const result = await this.reviewRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Review with ID ${id} not found`);
+    }
+    return `Review with ID ${id} has been successfully deleted`;
   }
 }
