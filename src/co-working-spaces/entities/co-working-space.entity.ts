@@ -12,7 +12,7 @@ import { User } from '../../auth/user.entity';
 @Entity()
 export class CoWorkingSpace {
   @ApiProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @ApiProperty()
@@ -29,7 +29,7 @@ export class CoWorkingSpace {
 
   @ApiProperty()
   @Column('json')
-  facilities: any;
+  facilities: string;
 
   @ApiProperty()
   @Column({ type: 'decimal', precision: 2, scale: 1 })
@@ -41,7 +41,7 @@ export class CoWorkingSpace {
 
   @ApiProperty()
   @Column('json')
-  contact_info: any;
+  contact_info: string;
 
   @ManyToOne(() => User, (user) => user.coWorkingSpaces, {
     eager: true,

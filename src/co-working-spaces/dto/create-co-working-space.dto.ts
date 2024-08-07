@@ -27,16 +27,7 @@ export class CreateCoWorkingSpaceDto {
   rating?: number;
 
   @ApiProperty()
-  @IsString()
-  @IsOptional()
-  logo?: string;
-
-  @ApiProperty()
   @IsOptional()
   contact_info: any;
 
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  user_id: number;
 }
