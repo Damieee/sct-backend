@@ -13,7 +13,7 @@ import { User } from '../../auth/user.entity';
 export class CoWorkingSpace {
   @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @ApiProperty()
   @Column()

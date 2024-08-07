@@ -52,10 +52,6 @@ export class CoWorkingSpacesService {
     return coworkingspace;
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} coWorkingSpace`;
-  }
-
   async getcoWorkingSpaceById(id: string): Promise<CoWorkingSpace> {
     const coworkingspace = await this.coworkingspaceRepository.findOne({
       where: { id },
@@ -72,10 +68,12 @@ export class CoWorkingSpacesService {
   async updateCoworkingSpace(
     id: string,
     updateCoworkingSpaceDto: UpdateCoWorkingSpaceDto,
+    user: User,
   ): Promise<CoWorkingSpace> {
-
     // Retrieve the coworking space by ID
-    const coworkingspace = await this.getcoWorkingSpaceById(id);
+    const coworkingspace = await this.coworkingspaceRepository.findOne({
+      where: { id, user },
+    });
 
     // Update the coworking space properties if provided
     if (updateCoworkingSpaceDto.name) {
@@ -109,9 +107,5 @@ export class CoWorkingSpacesService {
       );
     }
     return `Coworkingspace with id ${id} deleted successfully`;
-  }
-
-  update(id: number, updateCoWorkingSpaceDto: UpdateCoWorkingSpaceDto) {
-    return `This action updates a #${id} coWorkingSpace`;
   }
 }
