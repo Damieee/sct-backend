@@ -17,14 +17,13 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { NewsArticle } from './entities/news-article.entity';
 import { User } from 'src/auth/user.entity';
+import { filterDto } from './dto/get-news-article.dto';
 
 @ApiTags('news-articles')
 @Controller('news-articles')
 @UseGuards(AuthGuard())
 export class NewsArticlesController {
-  constructor(
-    private readonly newsArticlesService: NewsArticlesService,
-  ) {}
+  constructor(private readonly newsArticlesService: NewsArticlesService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new News Article' })
@@ -38,7 +37,10 @@ export class NewsArticlesController {
     @Body() createNewsArticleDto: CreateNewsArticleDto,
     @GetUser() user: User,
   ): Promise<NewsArticle> {
-    return this.newsArticlesService.createNewsArticle(createNewsArticleDto, user);
+    return this.newsArticlesService.createNewsArticle(
+      createNewsArticleDto,
+      user,
+    );
   }
 
   @Get()
@@ -48,8 +50,10 @@ export class NewsArticlesController {
     description: 'All news articles retrieved successfully.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  getNewsArticles(): Promise<NewsArticle[]> {
-    return this.newsArticlesService.getNewsArticles();
+  getNewsArticles(
+    @Query() newsarticlefilter: filterDto,
+  ): Promise<NewsArticle[]> {
+    return this.newsArticlesService.getNewsArticles(newsarticlefilter);
   }
 
   @Get('/:id')
@@ -76,7 +80,11 @@ export class NewsArticlesController {
     @Body() updateNewsArticleDto: UpdateNewsArticleDto,
     @GetUser() user: User,
   ): Promise<NewsArticle> {
-    return this.newsArticlesService.updateNewsArticle(id, updateNewsArticleDto, user);
+    return this.newsArticlesService.updateNewsArticle(
+      id,
+      updateNewsArticleDto,
+      user,
+    );
   }
 
   @Delete('/:id')

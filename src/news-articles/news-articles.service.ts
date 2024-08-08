@@ -1,33 +1,29 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
 import { UpdateNewsArticleDto } from './dto/update-news-article.dto';
 import { NewsArticle } from './entities/news-article.entity';
 import { User } from 'src/auth/user.entity';
+import { filterDto } from './dto/get-news-article.dto';
+import { NewsArticleRepository } from './news-article.repository';
 
 @Injectable()
 export class NewsArticlesService {
   constructor(
-    @InjectRepository(NewsArticle)
-    private newsArticleRepository: Repository<NewsArticle>,
+    @InjectRepository(NewsArticleRepository)
+    private newsArticleRepository: NewsArticleRepository,
   ) {}
 
   async createNewsArticle(
     createNewsArticleDto: CreateNewsArticleDto,
     user: User,
   ): Promise<NewsArticle> {
-    const { title, content, image, user_id } = createNewsArticleDto;
-
-    // Ensure the user_id matches the user making the request
-    if (user.id !== user_id) {
-      throw new NotFoundException('User not authorized to create this article.');
-    }
+    const { title, content, image } = createNewsArticleDto;
 
     const newsArticle = this.newsArticleRepository.create({
-      title,
-      content,
-      image,
+      title: title,
+      content: content,
+      image: image,
       user,
     });
 
@@ -35,13 +31,26 @@ export class NewsArticlesService {
     return newsArticle;
   }
 
-  async getNewsArticles(): Promise<NewsArticle[]> {
-    return await this.newsArticleRepository.find();
+  async getNewsArticles(newsarticlefilter: filterDto): Promise<NewsArticle[]> {
+    const { search } = newsarticlefilter;
+    const query = this.newsArticleRepository.createQueryBuilder('newsarticle');
+
+    if (search) {
+      query.andWhere(
+        '(LOWER(newsarticle.title) LIKE LOWER(:search) OR LOWER(newsarticle.content) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+
+    const newsarticle = await query.getMany();
+    return newsarticle;
   }
 
   async getNewsArticleById(id: string): Promise<NewsArticle> {
-    const newsArticle = await this.newsArticleRepository.findOne({ where: { id } });
-    
+    const newsArticle = await this.newsArticleRepository.findOne({
+      where: { id },
+    });
+
     if (!newsArticle) {
       throw new NotFoundException(`News article with id ${id} not found.`);
     }
@@ -56,7 +65,9 @@ export class NewsArticlesService {
   ): Promise<NewsArticle> {
     const { title, content, image } = updateNewsArticleDto;
 
-    const newsArticle = await this.newsArticleRepository.findOne({ where: { id, user } });
+    const newsArticle = await this.newsArticleRepository.findOne({
+      where: { id, user },
+    });
 
     if (!newsArticle) {
       throw new NotFoundException(`News article with id ${id} not found.`);
