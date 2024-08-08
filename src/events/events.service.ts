@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EventRepository } from './event.repository'; // Adjust this import based on your actual repository file
+import { EventRepository } from './events.repository';
 import { Event } from './entities/event.entity';
 import { User } from 'src/auth/user.entity';
+import { filterDto } from './dto/get-events.dto';
 
 @Injectable()
 export class EventsService {
@@ -17,16 +18,42 @@ export class EventsService {
     createEventDto: CreateEventDto,
     user: User,
   ): Promise<Event> {
+    const {
+      title,
+      description,
+      date,
+      location,
+      offerings,
+      organizer_name,
+      time,
+    } = createEventDto;
     const event = this.eventRepository.create({
-      ...createEventDto,
-      user, // Assuming you want to associate the event with the user
+      title: title,
+      description: description,
+      date: date,
+      time: time,
+      location: location,
+      offerings: offerings,
+      organizer_name: organizer_name,
+      user,
     });
     await this.eventRepository.save(event);
     return event;
   }
 
-  async getEvents(): Promise<Event[]> {
-    return this.eventRepository.find();
+  async getEvents(eventfilter: filterDto): Promise<Event[]> {
+    const { search } = eventfilter;
+    const query = this.eventRepository.createQueryBuilder('event');
+
+    if (search) {
+      query.andWhere(
+        '(LOWER(event.title) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search) OR LOWER(event.location) LIKE LOWER(:search) OR LOWER(event.organizer_name) LIKE LOWER(:search))',
+        { search: `%${search}%` },
+      );
+    }
+
+    const event = await query.getMany();
+    return event;
   }
 
   async getEventById(id: string): Promise<Event> {

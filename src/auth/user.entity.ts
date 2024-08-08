@@ -21,7 +21,7 @@ export class User {
   @ApiProperty({ description: 'The password of the user' })
   password: string;
 
-  @OneToMany(() => Event, (event) => event.organizer)
+  @OneToMany(() => Event, (event) => event.user)
   events: Event[];
 
   @OneToMany(() => TrainingOrganization, (organization) => organization.user)

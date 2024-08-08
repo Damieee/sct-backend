@@ -6,8 +6,8 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -17,6 +17,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Event } from './entities/event.entity';
 import { User } from 'src/auth/user.entity';
+import { filterDto } from './dto/get-events.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -46,8 +47,8 @@ export class EventsController {
     description: 'Events have been successfully retrieved.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  getEvents(): Promise<Event[]> {
-    return this.eventsService.getEvents();
+  getEvents(@Query() eventFilterDto: filterDto): Promise<Event[]> {
+    return this.eventsService.getEvents(eventFilterDto);
   }
 
   @Get('/:id')
@@ -84,10 +85,7 @@ export class EventsController {
     description: 'Event has been successfully deleted.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  deleteEvent(
-    @Param('id') id: string,
-    @GetUser() user: User,
-  ): Promise<string> {
+  deleteEvent(@Param('id') id: string, @GetUser() user: User): Promise<string> {
     return this.eventsService.deleteEvent(id, user);
   }
 }

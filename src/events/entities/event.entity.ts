@@ -1,7 +1,7 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  Column, 
+  Column,
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
@@ -12,8 +12,8 @@ import { User } from '../../auth/user.entity';
 @Entity()
 export class Event {
   @ApiProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ApiProperty()
   @Column()
@@ -22,6 +22,10 @@ export class Event {
   @ApiProperty()
   @Column()
   description: string;
+
+  @ApiProperty()
+  @Column()
+  organizer_name: string;
 
   @ApiProperty()
   @Column()
@@ -55,7 +59,7 @@ export class Event {
     eager: true,
     onDelete: 'CASCADE',
   })
-  organizer: User;
+  user: User;
 
   @ApiProperty()
   @CreateDateColumn()

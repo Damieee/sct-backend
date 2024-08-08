@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsDateString,
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -37,11 +36,6 @@ export class CreateEventDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  category: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
   offerings: string;
 
   @ApiProperty()
@@ -55,7 +49,7 @@ export class CreateEventDto {
   rating?: number;
 
   @ApiProperty()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  organizer_id: number;
+  organizer_name: string;
 }
