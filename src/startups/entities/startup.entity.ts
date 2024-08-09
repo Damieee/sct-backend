@@ -13,7 +13,7 @@ import { User } from '../../auth/user.entity';
 export class Startup {
   @ApiProperty()
   @PrimaryGeneratedColumn()
-  id: number;
+  id: string;
 
   @ApiProperty()
   @Column()
@@ -25,7 +25,7 @@ export class Startup {
 
   @ApiProperty()
   @Column('json')
-  tags: any;
+  tags: JSON;
 
   @ApiProperty()
   @Column()

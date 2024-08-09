@@ -21,9 +21,7 @@ import { User } from 'src/auth/user.entity';
 @Controller('startups')
 @UseGuards(AuthGuard())
 export class StartupsController {
-  constructor(
-    private readonly startupsService: StartupsService,
-  ) {}
+  constructor(private readonly startupsService: StartupsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Add a new Startup' })
