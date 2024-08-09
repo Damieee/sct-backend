@@ -12,8 +12,8 @@ import { User } from '../../auth/user.entity';
 @Entity()
 export class Review {
   @ApiProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ApiProperty()
   @Column()

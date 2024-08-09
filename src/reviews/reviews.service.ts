@@ -13,8 +13,16 @@ export class ReviewService {
     private reviewRepository: Repository<Review>,
   ) {}
 
-  async createReview(createReviewDto: CreateReviewDto): Promise<Review> {
-    const review = this.reviewRepository.create(createReviewDto);
+  async createReview(
+    createReviewDto: CreateReviewDto,
+    user: User,
+  ): Promise<Review> {
+    const { rating, comment } = createReviewDto;
+    const review = this.reviewRepository.create({
+      rating: rating,
+      comment: comment,
+      user,
+    });
     await this.reviewRepository.save(review);
     return review;
   }
@@ -23,15 +31,20 @@ export class ReviewService {
     return this.reviewRepository.find();
   }
 
-  async getReviewById(id: number): Promise<Review> {
-    const review = await this.reviewRepository.findOne(id);
+  async getReviewById(id: string): Promise<Review> {
+    const review = await this.reviewRepository.findOne({
+      where: { id },
+    });
     if (!review) {
       throw new NotFoundException(`Review with ID ${id} not found`);
     }
     return review;
   }
 
-  async updateReview(id: number, updateReviewDto: UpdateReviewDto): Promise<Review> {
+  async updateReview(
+    id: string,
+    updateReviewDto: UpdateReviewDto,
+  ): Promise<Review> {
     const review = await this.reviewRepository.preload({
       id,
       ...updateReviewDto,
