@@ -2,11 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTrainingOrganizationDto } from './dto/create-training-organization.dto';
 import { UpdateTrainingOrganizationDto } from './dto/update-training-organization.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TrainingOrganizationRepository } from './training-organizations.repository';
 import { User } from 'src/auth/user.entity';
 import { TrainingOrganization } from './entities/training-organization.entity';
 import { filterDto } from './dto/get-training-organization.dto';
-import { v4 as uuid } from 'uuid';
+import { TrainingOrganizationRepository } from './training-organizations.repository';
 
 @Injectable()
 export class TrainingOrganizationsService {
@@ -19,18 +18,17 @@ export class TrainingOrganizationsService {
     createTrainingOrganizationDto: CreateTrainingOrganizationDto,
     user: User,
   ): Promise<TrainingOrganization> {
-    const { name, description, location, courses, rating, logo, contact_info, user_id } =
+    const { name, description, location, courses, rating, logo, contact_info } =
       createTrainingOrganizationDto;
     const trainingOrganization = this.trainingOrganizationRepository.create({
-      id: uuid(),
-      name,
-      description,
-      location,
-      courses,
-      rating,
-      logo,
-      contact_info,
-      user_id,
+      name: name,
+      description: description,
+      location: location,
+      courses: courses,
+      rating: rating,
+      logo: logo,
+      contact_info: contact_info,
+      user,
     });
     await this.trainingOrganizationRepository.save(trainingOrganization);
     return trainingOrganization;
@@ -40,8 +38,9 @@ export class TrainingOrganizationsService {
     filterDto: filterDto,
   ): Promise<TrainingOrganization[]> {
     const { search } = filterDto;
-    const query =
-      this.trainingOrganizationRepository.createQueryBuilder('trainingOrganization');
+    const query = this.trainingOrganizationRepository.createQueryBuilder(
+      'trainingOrganization',
+    );
 
     if (search) {
       query.andWhere(
@@ -55,9 +54,10 @@ export class TrainingOrganizationsService {
   }
 
   async getTrainingOrganizationById(id: string): Promise<TrainingOrganization> {
-    const trainingOrganization = await this.trainingOrganizationRepository.findOne({
-      where: { id },
-    });
+    const trainingOrganization =
+      await this.trainingOrganizationRepository.findOne({
+        where: { id },
+      });
 
     if (!trainingOrganization) {
       throw new NotFoundException(
@@ -72,9 +72,10 @@ export class TrainingOrganizationsService {
     updateTrainingOrganizationDto: UpdateTrainingOrganizationDto,
     user: User,
   ): Promise<TrainingOrganization> {
-    const trainingOrganization = await this.trainingOrganizationRepository.findOne({
-      where: { id, user },
-    });
+    const trainingOrganization =
+      await this.trainingOrganizationRepository.findOne({
+        where: { id, user },
+      });
 
     if (!trainingOrganization) {
       throw new NotFoundException(
@@ -89,7 +90,10 @@ export class TrainingOrganizationsService {
   }
 
   async deleteTrainingOrganization(id: string, user: User): Promise<string> {
-    const result = await this.trainingOrganizationRepository.delete({ id, user });
+    const result = await this.trainingOrganizationRepository.delete({
+      id,
+      user,
+    });
 
     if (result.affected === 0) {
       throw new NotFoundException(

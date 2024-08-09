@@ -12,8 +12,8 @@ import { User } from '../../auth/user.entity';
 @Entity()
 export class TrainingOrganization {
   @ApiProperty()
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @ApiProperty()
   @Column()
@@ -28,8 +28,8 @@ export class TrainingOrganization {
   location: string;
 
   @ApiProperty()
-  @Column('json')
-  courses: any;
+  @Column()
+  courses: string;
 
   @ApiProperty()
   @Column({ type: 'decimal', precision: 2, scale: 1 })
@@ -40,8 +40,8 @@ export class TrainingOrganization {
   logo: string;
 
   @ApiProperty()
-  @Column('json')
-  contact_info: any;
+  @Column()
+  contact_info: string;
 
   @ManyToOne(() => User, (user) => user.trainingOrganizations, {
     eager: true,

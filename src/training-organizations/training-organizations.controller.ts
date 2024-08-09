@@ -56,7 +56,9 @@ export class TrainingOrganizationsController {
   getTrainingOrganizations(
     @Query() filterDto: filterDto,
   ): Promise<TrainingOrganization[]> {
-    return this.trainingOrganizationsService.getTrainingOrganizations(filterDto);
+    return this.trainingOrganizationsService.getTrainingOrganizations(
+      filterDto,
+    );
   }
 
   @Get('/:id')
@@ -66,7 +68,9 @@ export class TrainingOrganizationsController {
     description: 'Training organization has been successfully retrieved.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  getTrainingOrganizationById(@Param('id') id: string): Promise<TrainingOrganization> {
+  getTrainingOrganizationById(
+    @Param('id') id: string,
+  ): Promise<TrainingOrganization> {
     return this.trainingOrganizationsService.getTrainingOrganizationById(id);
   }
 
@@ -101,6 +105,9 @@ export class TrainingOrganizationsController {
     @Param('id') id: string,
     @GetUser() user: User,
   ): Promise<string> {
-    return this.trainingOrganizationsService.deleteTrainingOrganization(id, user);
+    return this.trainingOrganizationsService.deleteTrainingOrganization(
+      id,
+      user,
+    );
   }
 }
