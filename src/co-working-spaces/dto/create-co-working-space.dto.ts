@@ -19,7 +19,7 @@ export class CreateCoWorkingSpaceDto {
 
   @ApiProperty()
   @IsOptional()
-  facilities: any;
+  facilities: string;
 
   @ApiProperty()
   @IsNumber()
@@ -28,6 +28,11 @@ export class CreateCoWorkingSpaceDto {
 
   @ApiProperty()
   @IsOptional()
-  contact_info: any;
-
+  contact_info: string;
 }
+
+// contact_info [phone number, email, website, ], location {string, long and lat}, opening and closing , mutiple image for one co working space, review
+
+// Only Admins should be able to write articles.
+
+// Merging reviews with other modules
