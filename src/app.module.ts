@@ -8,6 +8,7 @@ import { StartupsModule } from './startups/startups.module';
 import { NewsArticlesModule } from './news-articles/news-articles.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
+import { FilesModule } from './files/files.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
     NewsArticlesModule,
     ReviewsModule,
     AuthModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
