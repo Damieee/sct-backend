@@ -8,6 +8,8 @@ import {
   Delete,
   Query,
   UseGuards,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CoWorkingSpacesService } from './co-working-spaces.service';
 import { CreateCoWorkingSpaceDto } from './dto/create-co-working-space.dto';
@@ -18,16 +20,18 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { filterDto } from './dto/get-co-working-space.dto';
 import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { User } from 'src/auth/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @ApiTags('co-working-spaces')
 @Controller('co-working-spaces')
-@UseGuards(AuthGuard())
 export class CoWorkingSpacesController {
   constructor(
     private readonly coWorkingSpacesService: CoWorkingSpacesService,
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Add a new Co-WorkSpace' })
   @ApiResponse({
     status: 201,
@@ -74,6 +78,7 @@ export class CoWorkingSpacesController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Delete Co-WorkSpace By ID' })
   @ApiResponse({
     status: 201,
@@ -89,6 +94,7 @@ export class CoWorkingSpacesController {
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Update Co-WorkSpace By ID' })
   @ApiResponse({
     status: 201,
@@ -105,6 +111,19 @@ export class CoWorkingSpacesController {
       id,
       updateCoWorkingSpaceDto,
       user,
+    );
+  }
+
+  @Post('/picture/:id')
+  @UseInterceptors(FileInterceptor('file'))
+  async addPicture(
+    @Param('id') id: string,
+    @UploadedFiles() file: Express.Multer.File,
+  ) {
+    return this.coWorkingSpacesService.addPicture(
+      id,
+      file.buffer,
+      file.originalname,
     );
   }
 }

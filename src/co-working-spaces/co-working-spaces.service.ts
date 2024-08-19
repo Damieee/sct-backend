@@ -7,12 +7,14 @@ import { User } from 'src/auth/user.entity';
 import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { filterDto } from './dto/get-co-working-space.dto';
 import { v4 as uuid } from 'uuid';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class CoWorkingSpacesService {
   constructor(
     @InjectRepository(CoWorkingSpaceRepository)
     private coworkingspaceRepository: CoWorkingSpaceRepository,
+    private fileService: FilesService,
   ) {}
   async createCoworkingspace(
     createCoWorkingSpaceDto: CreateCoWorkingSpaceDto,
@@ -107,5 +109,24 @@ export class CoWorkingSpacesService {
       );
     }
     return `Coworkingspace with id ${id} deleted successfully`;
+  }
+  async addPicture(id: string, imageBuffer: Buffer, filename: string) {
+    const coworkingspace = await this.getcoWorkingSpaceById(id);
+    if (coworkingspace.picture) {
+      await this.coworkingspaceRepository.update(id, {
+        ...coworkingspace,
+        picture: null,
+      });
+      await this.fileService.deletePublicFile(coworkingspace.picture.id);
+    }
+    const picture = await this.fileService.uploadPublicFile(
+      imageBuffer,
+      filename,
+    );
+    await this.coworkingspaceRepository.update(id, {
+      ...coworkingspace,
+      picture,
+    });
+    return picture;
   }
 }

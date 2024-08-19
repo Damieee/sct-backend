@@ -1,8 +1,19 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { User } from './user.entity';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
+import { GetUser } from './get-user.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -43,4 +54,14 @@ export class AuthController {
   //   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
   //     return this.authService.forgotPassword(forgotPasswordDto);
   //   }
+
+  @Post('avatar')
+  @UseGuards(AuthGuard)
+  @UseInterceptors(FileInterceptor('file'))
+  async addAvatar(
+    @GetUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.authService.addAvatar(user, file.buffer, file.originalname);
+  }
 }
