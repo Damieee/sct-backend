@@ -9,8 +9,9 @@ import { NewsArticlesModule } from './news-articles/news-articles.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -29,6 +30,22 @@ import * as Joi from '@hapi/joi';
         AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
         PORT: Joi.number(),
       }),
+    }),
+    TypeOrmModule.forRootAsync({
+      useFactory: (configService: ConfigService) => {
+        return {
+          type: 'postgres',
+          host: configService.get('POSTGRES_HOST'),
+          port: configService.get('POSTGRES_PORT'),
+          username: configService.get('POSTGRES_USER'),
+          password: configService.get('POSTGRES_PASSWORD'),
+          database: configService.get('POSTGRES_DB'),
+          synchronize: true,
+          autoLoadEntities: true,
+        };
+      },
+      inject: [ConfigService],
+      imports: [ConfigModule],
     }),
     EventsModule,
     TrainingOrganizationsModule,

@@ -28,10 +28,18 @@ export class CreateCoWorkingSpaceDto {
 
   @ApiProperty()
   @IsOptional()
-  contact_info: string;
+  phone_number: string;
+
+  @ApiProperty()
+  @IsOptional()
+  email: string;
+
+  @ApiProperty()
+  @IsOptional()
+  website: string;
 }
 
-// contact_info [phone number, email, website, ], location {string, long and lat}, opening and closing , mutiple image for one co working space, review
+// location {string, long and lat}, opening and closing , mutiple image for one co working space, review
 
 // Only Admins should be able to write articles.
 

@@ -9,13 +9,15 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from '@hapi/joi';
+import { FilesService } from 'src/files/files.service';
+import { FileRepository } from 'src/files/files.repository';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         JWT_SECRET: Joi.string().required(),
-        JWT_EXPIRATION: Joi.number().required(),
+        JWT_EXPIRATION_TIME: Joi.number().required(),
       }),
     }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -29,10 +31,17 @@ import * as Joi from '@hapi/joi';
         };
       },
       inject: [ConfigService],
+      imports: [ConfigModule],
     }),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, UsersRepository, JwtStrategy],
+  providers: [
+    AuthService,
+    UsersRepository,
+    JwtStrategy,
+    FilesService,
+    FileRepository,
+  ],
   controllers: [AuthController],
   exports: [JwtStrategy, PassportModule],
 })

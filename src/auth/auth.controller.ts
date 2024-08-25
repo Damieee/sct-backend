@@ -3,14 +3,12 @@ import {
   Controller,
   Post,
   UploadedFile,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { User } from './user.entity';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetUser } from './get-user.decorator';
@@ -56,7 +54,6 @@ export class AuthController {
   //   }
 
   @Post('avatar')
-  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async addAvatar(
     @GetUser() user: User,

@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { S3 } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuid } from 'uuid';
-import { File } from './entities/file.entity';
+import { FileRepository } from './files.repository';
 
 @Injectable()
 export class FilesService {
   constructor(
-    @InjectRepository(File)
-    private publicFilesRepository: Repository<File>,
+    @InjectRepository(FileRepository)
+    private publicFilesRepository: FileRepository,
     private readonly configService: ConfigService,
   ) {}
 

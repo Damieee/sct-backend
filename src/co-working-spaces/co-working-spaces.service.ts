@@ -20,8 +20,16 @@ export class CoWorkingSpacesService {
     createCoWorkingSpaceDto: CreateCoWorkingSpaceDto,
     user: User,
   ): Promise<CoWorkingSpace> {
-    const { name, location, pricing_range, facilities, rating, contact_info } =
-      createCoWorkingSpaceDto;
+    const {
+      name,
+      location,
+      pricing_range,
+      facilities,
+      rating,
+      website,
+      email,
+      phone_number,
+    } = createCoWorkingSpaceDto;
     const coworkingspace = this.coworkingspaceRepository.create({
       id: uuid(),
       name: name,
@@ -29,7 +37,9 @@ export class CoWorkingSpacesService {
       pricing_range: pricing_range,
       facilities: facilities,
       rating: rating,
-      contact_info: contact_info,
+      website: website,
+      email: email,
+      phone_number: phone_number,
       user,
     });
     await this.coworkingspaceRepository.save(coworkingspace);
@@ -38,10 +48,13 @@ export class CoWorkingSpacesService {
 
   async getCoworkingspaces(
     coworkingspacefilter: filterDto,
+    user: User,
   ): Promise<CoWorkingSpace[]> {
     const { search } = coworkingspacefilter;
     const query =
       this.coworkingspaceRepository.createQueryBuilder('coworkingspace');
+
+    query.where({ user });
 
     if (search) {
       query.andWhere(
@@ -90,8 +103,14 @@ export class CoWorkingSpacesService {
     if (updateCoworkingSpaceDto.facilities) {
       coworkingspace.facilities = updateCoworkingSpaceDto.facilities;
     }
-    if (updateCoworkingSpaceDto.contact_info) {
-      coworkingspace.contact_info = updateCoworkingSpaceDto.contact_info;
+    if (updateCoworkingSpaceDto.email) {
+      coworkingspace.email = updateCoworkingSpaceDto.email;
+    }
+    if (updateCoworkingSpaceDto.website) {
+      coworkingspace.website = updateCoworkingSpaceDto.website;
+    }
+    if (updateCoworkingSpaceDto.phone_number) {
+      coworkingspace.phone_number = updateCoworkingSpaceDto.phone_number;
     }
 
     // Save the updated coworking space

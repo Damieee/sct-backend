@@ -14,7 +14,13 @@ import {
 import { CoWorkingSpacesService } from './co-working-spaces.service';
 import { CreateCoWorkingSpaceDto } from './dto/create-co-working-space.dto';
 import { UpdateCoWorkingSpaceDto } from './dto/update-co-working-space.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { filterDto } from './dto/get-co-working-space.dto';
@@ -31,8 +37,8 @@ export class CoWorkingSpacesController {
   ) {}
 
   @Post()
-  @UseGuards(AuthGuard())
   @ApiOperation({ summary: 'Add a new Co-WorkSpace' })
+  @ApiBearerAuth('JWT')
   @ApiResponse({
     status: 201,
     description: 'Co-WorkSpace has been successfully created.',
@@ -59,9 +65,11 @@ export class CoWorkingSpacesController {
   @ApiBody({ type: filterDto })
   getCoworkingSpace(
     @Query() coWorkingSpaceFilterDto: filterDto,
+    @GetUser() user: User,
   ): Promise<CoWorkingSpace[]> {
     return this.coWorkingSpacesService.getCoworkingspaces(
       coWorkingSpaceFilterDto,
+      user,
     );
   }
 
@@ -79,6 +87,7 @@ export class CoWorkingSpacesController {
 
   @Delete('/:id')
   @UseGuards(AuthGuard())
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete Co-WorkSpace By ID' })
   @ApiResponse({
     status: 201,
@@ -95,6 +104,7 @@ export class CoWorkingSpacesController {
 
   @Patch('/:id')
   @UseGuards(AuthGuard())
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update Co-WorkSpace By ID' })
   @ApiResponse({
     status: 201,
@@ -115,6 +125,7 @@ export class CoWorkingSpacesController {
   }
 
   @Post('/picture/:id')
+  @ApiBearerAuth('JWT')
   @UseInterceptors(FileInterceptor('file'))
   async addPicture(
     @Param('id') id: string,

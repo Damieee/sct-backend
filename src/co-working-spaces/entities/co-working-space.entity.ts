@@ -11,6 +11,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 import { File } from 'src/files/entities/file.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class CoWorkingSpace {
@@ -44,12 +45,21 @@ export class CoWorkingSpace {
 
   @ApiProperty()
   @Column('json')
-  contact_info: string;
+  website: string;
+
+  @ApiProperty()
+  @Column('json')
+  email: string;
+
+  @ApiProperty()
+  @Column('json')
+  phone_number: string;
 
   @ManyToOne(() => User, (user) => user.coWorkingSpaces, {
     eager: true,
     onDelete: 'CASCADE',
   })
+  @Exclude({ toPlainOnly: true })
   user: User;
 
   @ApiProperty()
