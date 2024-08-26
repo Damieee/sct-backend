@@ -31,7 +31,7 @@ export class FilesService {
     return newFile;
   }
 
-  async deletePublicFile(fileId: number) {
+  async deletePublicFile(fileId: string) {
     const file = await this.publicFilesRepository.findOne({
       where: { id: fileId },
     });

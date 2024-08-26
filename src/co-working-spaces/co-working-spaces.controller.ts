@@ -31,6 +31,7 @@ import { Express } from 'express';
 
 @ApiTags('co-working-spaces')
 @Controller('co-working-spaces')
+@UseGuards(AuthGuard())
 export class CoWorkingSpacesController {
   constructor(
     private readonly coWorkingSpacesService: CoWorkingSpacesService,
@@ -86,7 +87,6 @@ export class CoWorkingSpacesController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard())
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete Co-WorkSpace By ID' })
   @ApiResponse({
@@ -103,7 +103,6 @@ export class CoWorkingSpacesController {
   }
 
   @Patch('/:id')
-  @UseGuards(AuthGuard())
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update Co-WorkSpace By ID' })
   @ApiResponse({

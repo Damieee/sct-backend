@@ -41,18 +41,14 @@ export class CoWorkingSpace {
 
   @ApiProperty()
   @Column()
-  logo: string;
-
-  @ApiProperty()
-  @Column('json')
   website: string;
 
   @ApiProperty()
-  @Column('json')
+  @Column()
   email: string;
 
   @ApiProperty()
-  @Column('json')
+  @Column()
   phone_number: string;
 
   @ManyToOne(() => User, (user) => user.coWorkingSpaces, {
