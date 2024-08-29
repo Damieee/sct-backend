@@ -48,17 +48,14 @@ export class CoWorkingSpacesService {
 
   async getCoworkingspaces(
     coworkingspacefilter: filterDto,
-    user: User,
   ): Promise<CoWorkingSpace[]> {
     const { search } = coworkingspacefilter;
     const query =
       this.coworkingspaceRepository.createQueryBuilder('coworkingspace');
 
-    query.where({ user });
-
     if (search) {
-      query.andWhere(
-        '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location) LIKE LOWER(:search) OR LOWER(coworkingspace.facilities) LIKE LOWER(:search) OR LOWER(coworkingspace.contact_info) LIKE LOWER(:search))',
+      query.where(
+        '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location) LIKE LOWER(:search) OR LOWER(coworkingspace.website) LIKE LOWER(:search) OR LOWER(coworkingspace.email) LIKE LOWER(:search) OR LOWER(coworkingspace.phone_number) LIKE LOWER(:search))',
         { search: `%${search}%` },
       );
     }
@@ -83,13 +80,17 @@ export class CoWorkingSpacesService {
   async updateCoworkingSpace(
     id: string,
     updateCoworkingSpaceDto: UpdateCoWorkingSpaceDto,
-    user: User,
   ): Promise<CoWorkingSpace> {
     // Retrieve the coworking space by ID
     const coworkingspace = await this.coworkingspaceRepository.findOne({
-      where: { id, user },
+      where: { id },
     });
 
+    if (!coworkingspace) {
+      throw new NotFoundException(
+        `could not find coworkingspace with id: ${id}`,
+      );
+    }
     // Update the coworking space properties if provided
     if (updateCoworkingSpaceDto.name) {
       coworkingspace.name = updateCoworkingSpaceDto.name;
