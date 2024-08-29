@@ -31,12 +31,12 @@ import { Express } from 'express';
 
 @ApiTags('co-working-spaces')
 @Controller('co-working-spaces')
-@UseGuards(AuthGuard())
 export class CoWorkingSpacesController {
   constructor(
     private readonly coWorkingSpacesService: CoWorkingSpacesService,
   ) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
   @ApiOperation({ summary: 'Add a new Co-WorkSpace' })
   @ApiBearerAuth('JWT')
@@ -63,14 +63,11 @@ export class CoWorkingSpacesController {
     description: 'Co-WorkSpace has been successfully retrieved.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiBody({ type: filterDto })
   getCoworkingSpace(
     @Query() coWorkingSpaceFilterDto: filterDto,
-    @GetUser() user: User,
   ): Promise<CoWorkingSpace[]> {
     return this.coWorkingSpacesService.getCoworkingspaces(
       coWorkingSpaceFilterDto,
-      user,
     );
   }
 
@@ -86,6 +83,7 @@ export class CoWorkingSpacesController {
     return this.coWorkingSpacesService.getcoWorkingSpaceById(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete('/:id')
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete Co-WorkSpace By ID' })
@@ -102,6 +100,7 @@ export class CoWorkingSpacesController {
     return this.coWorkingSpacesService.deleteCoworkingSpace(id, user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch('/:id')
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update Co-WorkSpace By ID' })
@@ -114,15 +113,14 @@ export class CoWorkingSpacesController {
   updateCoWorkingSpace(
     @Param('id') id: string,
     @Body() updateCoWorkingSpaceDto: UpdateCoWorkingSpaceDto,
-    @GetUser() user: User,
   ): Promise<CoWorkingSpace> {
     return this.coWorkingSpacesService.updateCoworkingSpace(
       id,
       updateCoWorkingSpaceDto,
-      user,
     );
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('/picture/:id')
   @ApiBearerAuth('JWT')
   @UseInterceptors(FileInterceptor('file'))
