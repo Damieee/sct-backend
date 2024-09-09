@@ -35,8 +35,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       useFactory: (configService: ConfigService) => {
         return {
           type: 'postgres',
-          host: configService.get('POSTGRES_HOST'),
-          port: configService.get('POSTGRES_PORT'),
+          host: configService.get('POSTGRES_HOST') || '127.0.0.1' || 'db',
+          port: configService.get('POSTGRES_PORT') || 3306,
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
