@@ -10,7 +10,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import * as Joi from '@hapi/joi';
+import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
