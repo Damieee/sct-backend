@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsEnum } from 'class-validator';
+import { Category } from '../category.enum';
 
 export class CreateStartupDto {
   @ApiProperty()
@@ -20,6 +21,11 @@ export class CreateStartupDto {
   @IsString()
   @IsOptional()
   logo?: string;
+
+  @ApiProperty({ enum: Category })
+  @IsEnum(Category)
+  @IsNotEmpty()
+  category: Category;
 
   @ApiProperty()
   @IsNumber()

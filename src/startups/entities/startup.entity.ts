@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
+import { Category } from '../category.enum';
 
 @Entity()
 export class Startup {
@@ -26,6 +27,14 @@ export class Startup {
   @ApiProperty()
   @Column('json')
   tags: JSON;
+
+  @ApiProperty()
+  @Column({
+    type: 'enum',
+    enum: Category,
+    default: Category.OTHER, // Default value, if applicable
+  })
+  category: Category;
 
   @ApiProperty()
   @Column()
