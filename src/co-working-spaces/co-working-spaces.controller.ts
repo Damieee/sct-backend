@@ -10,6 +10,8 @@ import {
   UseGuards,
   UploadedFiles,
   UseInterceptors,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { CoWorkingSpacesService } from './co-working-spaces.service';
 import { CreateCoWorkingSpaceDto } from './dto/create-co-working-space.dto';
@@ -20,6 +22,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
@@ -28,6 +31,7 @@ import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { User } from 'src/auth/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { RateCoworkingSpaceDto } from './dto/rating.dto';
 
 @ApiTags('co-working-spaces')
 @Controller('co-working-spaces')
@@ -78,7 +82,6 @@ export class CoWorkingSpacesController {
     description: 'Co-WorkSpace has been successfully retrieved.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiBody({ type: filterDto })
   getCoworkingSpaceById(@Param('id') id: string): Promise<CoWorkingSpace> {
     return this.coWorkingSpacesService.getcoWorkingSpaceById(id);
   }
@@ -92,7 +95,6 @@ export class CoWorkingSpacesController {
     description: 'Co-WorkSpace has been successfully deleted.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiBody({ type: filterDto })
   deleteCoworkingSpace(
     @Param('id') id: string,
     @GetUser() user: User,
@@ -113,9 +115,11 @@ export class CoWorkingSpacesController {
   updateCoWorkingSpace(
     @Param('id') id: string,
     @Body() updateCoWorkingSpaceDto: UpdateCoWorkingSpaceDto,
+    @GetUser() user: User,
   ): Promise<CoWorkingSpace> {
     return this.coWorkingSpacesService.updateCoworkingSpace(
       id,
+      user,
       updateCoWorkingSpaceDto,
     );
   }
@@ -123,15 +127,66 @@ export class CoWorkingSpacesController {
   @UseGuards(AuthGuard('jwt'))
   @Post('/picture/:id')
   @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Add Co-WorkSpace Picture' })
+  @ApiConsumes('multipart/form-data') // Specify file upload
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  }) // Swagger body for file upload
+  @ApiResponse({
+    status: 201,
+    description: 'Co-WorkSpace picture has been successfully added.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   @UseInterceptors(FileInterceptor('file'))
   async addPicture(
     @Param('id') id: string,
     @UploadedFiles() file: Express.Multer.File,
+    @GetUser() user: User,
   ) {
     return this.coWorkingSpacesService.addPicture(
       id,
       file.buffer,
       file.originalname,
+      user,
     );
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id/rate')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Rate Co-WorkSpace' })
+  @ApiResponse({
+    status: 201,
+    description: 'Co-WorkSpace rating has been successfully added.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({
+    status: 409,
+    description: 'You have already rated this coworking space.',
+  })
+  @ApiResponse({ status: 500, description: 'Internal Server Error.' })
+  @ApiBody({ type: RateCoworkingSpaceDto })
+  async rate(
+    @Param('id') coworkingSpaceId: string,
+    @Body() ratingDto: RateCoworkingSpaceDto,
+    @GetUser() user: User,
+  ) {
+    try {
+      return this.coWorkingSpacesService.rateCoworkingSpace(
+        coworkingSpaceId,
+        ratingDto,
+        user,
+      );
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

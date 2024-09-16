@@ -74,11 +74,6 @@ export class CreateCoWorkingSpaceDto {
   @IsOptional()
   facilities: string;
 
-  @ApiProperty({ description: 'Rating of the coworking space', example: 4.5 })
-  @IsNumber()
-  @IsOptional()
-  rating?: number;
-
   @ApiProperty()
   @IsOptional()
   phone_number: string;
