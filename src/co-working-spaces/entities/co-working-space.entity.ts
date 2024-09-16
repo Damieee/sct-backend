@@ -29,7 +29,15 @@ export class CoWorkingSpace {
 
   @ApiProperty()
   @Column()
-  pricing_range: string;
+  daily_rate: number;
+
+  @Column('json')
+  opening_hour: {
+    week_start: string;
+    week_end: string;
+    opening_time: number;
+    closing_time: number;
+  };
 
   @ApiProperty()
   @Column('json')

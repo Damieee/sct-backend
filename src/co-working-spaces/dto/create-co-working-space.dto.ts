@@ -1,27 +1,63 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsEnum, IsNumber, IsString, IsOptional, IsArray,  IsInt, Max, Min, ValidateNested } from 'class-validator';
+import { Weekdays } from '../weekdays.enum';
+import { Type } from 'class-transformer';
+
+
+class OpeningHours {
+  @ApiProperty({ description: 'Start Day of the week', example: 'Monday', enum: Weekdays })
+  @IsEnum(Weekdays)
+  @IsNotEmpty()
+  week_start: Weekdays;
+
+  @ApiProperty({ description: 'End Day of the week', example: 'Friday', enum: Weekdays  })
+  @IsEnum(Weekdays)
+  @IsNotEmpty()
+  week_end: Weekdays;
+
+  @ApiProperty({ description: 'Opening time', example: 2 })
+  @IsNumber()
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  opening_time: number;
+
+  @ApiProperty({ description: 'Closing time', example: 22 })
+  @IsNumber()
+  @IsNotEmpty()
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  closing_time: number;
+}
 
 export class CreateCoWorkingSpaceDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'The name of the coworking space' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'The location address of the coworking space' })
   @IsString()
   @IsNotEmpty()
   location: string;
 
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ description: 'Opening hour details' })
+  @ValidateNested({ each: true })
+  @Type(() => OpeningHours)
+  opening_hours: OpeningHours;
+
+  @ApiProperty({ description: 'Daily rate in Nigerian Naira', example: 7500 })
+  @IsNumber()
   @IsNotEmpty()
-  pricing_range: string;
+  daily_rate: number;
 
   @ApiProperty()
   @IsOptional()
   facilities: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Rating of the coworking space', example: 4.5 })
   @IsNumber()
   @IsOptional()
   rating?: number;
