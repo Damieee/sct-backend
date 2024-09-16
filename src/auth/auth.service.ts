@@ -6,13 +6,14 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersRepository } from './user.repository';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
 import { v4 as uuid } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
 import { FilesService } from 'src/files/files.service';
+import { SigninCredentialsDto } from './dto/signin-credentials.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +24,15 @@ export class AuthService {
     private fileService: FilesService,
   ) {}
 
-  async signUp(CreateUserDto: AuthCredentialsDto): Promise<User> {
-    const { username, password } = CreateUserDto;
+  async signUp(CreateUserDto: SignupCredentialsDto): Promise<User> {
+    const { email, full_name, password } = CreateUserDto;
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
     const user = this.usersRepository.create({
       id: uuid(),
-      username: username,
+      full_name: full_name,
+      email: email,
       password: hashedPassword,
     });
     try {
@@ -46,13 +48,13 @@ export class AuthService {
   }
 
   async signIn(
-    authCredentialsDto: AuthCredentialsDto,
+    SignupCredentialsDto: SigninCredentialsDto,
   ): Promise<{ accessToken: string }> {
-    const { username, password } = authCredentialsDto;
-    const user = await this.usersRepository.findOneBy({ username: username });
+    const { email, password } = SignupCredentialsDto;
+    const user = await this.usersRepository.findOneBy({ email: email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      const payload: JwtPayload = { username };
+      const payload: JwtPayload = { email };
       const accessToken = await this.jwtService.sign(payload);
       return { accessToken };
     } else {
