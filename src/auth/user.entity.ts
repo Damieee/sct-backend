@@ -6,7 +6,6 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { Event } from '../events/entities/event.entity';
 import { TrainingOrganization } from '../training-organizations/entities/training-organization.entity';
 import { CoWorkingSpace } from '../co-working-spaces/entities/co-working-space.entity';
@@ -17,16 +16,16 @@ import { File } from 'src/files/entities/file.entity';
 
 @Entity()
 export class User {
-  @ApiProperty({ description: 'The unique identifier of the user' })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({ description: 'The username of the user' })
   @Column({ unique: true })
-  username: string;
+  full_name: string;
 
   @Column()
-  @ApiProperty({ description: 'The password of the user' })
+  email: string;
+
+  @Column()
   password: string;
 
   @JoinColumn()
