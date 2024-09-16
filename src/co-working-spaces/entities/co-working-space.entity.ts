@@ -8,26 +8,21 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 import { File } from 'src/files/entities/file.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity()
 export class CoWorkingSpace {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
   @Column()
   name: string;
 
-  @ApiProperty()
   @Column()
   location: string;
 
-  @ApiProperty()
   @Column()
   daily_rate: number;
 
@@ -39,23 +34,24 @@ export class CoWorkingSpace {
     closing_time: number;
   };
 
-  @ApiProperty()
   @Column('json')
   facilities: string;
 
-  @ApiProperty()
-  @Column({ type: 'decimal', precision: 2, scale: 1 })
-  rating: number;
+  @Column({ type: 'float', default: 0 })
+  averageRating: number;
 
-  @ApiProperty()
+  @Column({ default: 0 })
+  totalRatings: number;
+
+  @Column({ default: 0 })
+  ratingsCount: number;
+
   @Column()
   website: string;
 
-  @ApiProperty()
   @Column()
   email: string;
 
-  @ApiProperty()
   @Column()
   phone_number: string;
 
@@ -66,16 +62,13 @@ export class CoWorkingSpace {
   @Exclude({ toPlainOnly: true })
   user: User;
 
-  @ApiProperty()
   @JoinColumn()
   @OneToOne(() => File, { eager: true, nullable: true })
   picture?: File;
 
-  @ApiProperty()
   @CreateDateColumn()
   created_at: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   updated_at: Date;
 }
