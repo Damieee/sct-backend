@@ -23,7 +23,7 @@ export class StartupsService {
       description,
       tags,
       logo,
-      category
+      category,
       user,
     });
     await this.startupRepository.save(startup);
