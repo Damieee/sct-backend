@@ -28,7 +28,7 @@ export class CoWorkingSpacesService {
       rating,
       website,
       email,
-      opening_hours,
+      opening_hour,
       phone_number,
     } = createCoWorkingSpaceDto;
     const coworkingspace = this.coworkingspaceRepository.create({
@@ -41,7 +41,7 @@ export class CoWorkingSpacesService {
       website: website,
       email: email,
       phone_number: phone_number,
-      opening_hours: opening_hours,
+      opening_hour: opening_hour,
       user,
     });
     await this.coworkingspaceRepository.save(coworkingspace);
@@ -106,8 +106,8 @@ export class CoWorkingSpacesService {
     if (updateCoworkingSpaceDto.facilities) {
       coworkingspace.facilities = updateCoworkingSpaceDto.facilities;
     }
-    if (updateCoworkingSpaceDto.opening_hours) {
-      coworkingspace.opening_hours = updateCoworkingSpaceDto.opening_hours;
+    if (updateCoworkingSpaceDto.opening_hour) {
+      coworkingspace.opening_hour = updateCoworkingSpaceDto.opening_hour;
     }
     if (updateCoworkingSpaceDto.email) {
       coworkingspace.email = updateCoworkingSpaceDto.email;

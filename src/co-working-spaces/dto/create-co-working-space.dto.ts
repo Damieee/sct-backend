@@ -1,16 +1,33 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsEnum, IsNumber, IsString, IsOptional, IsArray,  IsInt, Max, Min, ValidateNested } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsEnum,
+  IsNumber,
+  IsString,
+  IsOptional,
+  IsInt,
+  Max,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Weekdays } from '../weekdays.enum';
 import { Type } from 'class-transformer';
 
-
-class OpeningHours {
-  @ApiProperty({ description: 'Start Day of the week', example: 'Monday', enum: Weekdays })
+class OpeningHour {
+  @ApiProperty({
+    description: 'Start Day of the week',
+    example: 'Monday',
+    enum: Weekdays,
+  })
   @IsEnum(Weekdays)
   @IsNotEmpty()
   week_start: Weekdays;
 
-  @ApiProperty({ description: 'End Day of the week', example: 'Friday', enum: Weekdays  })
+  @ApiProperty({
+    description: 'End Day of the week',
+    example: 'Friday',
+    enum: Weekdays,
+  })
   @IsEnum(Weekdays)
   @IsNotEmpty()
   week_end: Weekdays;
@@ -45,8 +62,8 @@ export class CreateCoWorkingSpaceDto {
 
   @ApiProperty({ description: 'Opening hour details' })
   @ValidateNested({ each: true })
-  @Type(() => OpeningHours)
-  opening_hours: OpeningHours;
+  @Type(() => OpeningHour)
+  opening_hour: OpeningHour;
 
   @ApiProperty({ description: 'Daily rate in Nigerian Naira', example: 7500 })
   @IsNumber()
