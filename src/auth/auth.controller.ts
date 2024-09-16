@@ -5,13 +5,14 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthCredentialsDto } from './dto/auth-credentials.dto';
+import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
 import { AuthService } from './auth.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetUser } from './get-user.decorator';
+import { SigninCredentialsDto } from './dto/signin-credentials.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -25,9 +26,9 @@ export class AuthController {
     description: 'User has been successfully created.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiBody({ type: AuthCredentialsDto })
-  signUp(@Body() authCredentialsDto: AuthCredentialsDto): Promise<User> {
-    return this.authService.signUp(authCredentialsDto);
+  @ApiBody({ type: SignupCredentialsDto })
+  signUp(@Body() SignupCredentialsDto: SignupCredentialsDto): Promise<User> {
+    return this.authService.signUp(SignupCredentialsDto);
   }
 
   @Post('/signin')
@@ -37,11 +38,11 @@ export class AuthController {
     description: 'User has been successfully signed in.',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiBody({ type: AuthCredentialsDto })
+  @ApiBody({ type: SigninCredentialsDto })
   signIn(
-    @Body() authCredentialsDto: AuthCredentialsDto,
+    @Body() SignupCredentialsDto: SigninCredentialsDto,
   ): Promise<{ accessToken: string }> {
-    return this.authService.signIn(authCredentialsDto);
+    return this.authService.signIn(SignupCredentialsDto);
   }
   //   @Post('forgot-password')
   //   @HttpCode(HttpStatus.OK)
