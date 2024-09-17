@@ -6,54 +6,54 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
+import { EventType } from '../event-type.enum';
 
 @Entity()
 export class Event {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @ApiProperty()
-  @Column()
+  @Column({ type: 'text' })
   description: string;
 
-  @ApiProperty()
-  @Column()
-  organizer_name: string;
+  @Column({ type: 'enum', enum: EventType })
+  type: EventType;
 
-  @ApiProperty()
-  @Column()
-  date: string;
+  @Column('json')
+  date_time: {
+    startDate: string;
+    endDate: string;
+  };
 
-  @ApiProperty()
-  @Column()
-  time: string;
+  @Column('json')
+  location: {
+    address: string; // Example: "Island 4, North Pacific Ocean"
+    link: string; // Example: "http://maps.google.com/..."
+  };
 
-  @ApiProperty()
-  @Column()
-  location: string;
+  @Column({ type: 'varchar', nullable: true })
+  thumbnail_image?: string;
 
-  @ApiProperty()
-  @Column()
-  category: string;
+  @Column({ type: 'int', nullable: true })
+  pricing?: number;
 
-  @ApiProperty()
-  @Column()
-  offerings: string;
+  @Column('json')
+  organizer: {
+    name: string; // Example: "Dare Ezekiel"
+    email: string; // Example: "joshezekiel.dev@gmail.com"
+    phone_number: string; // Example: "+234 906 453 1233"
+    website?: string; // Optional field
+  };
 
-  @ApiProperty()
-  @Column()
-  thumbnail_image: string;
+  @Column({ type: 'varchar', nullable: true })
+  registration_url?: string;
 
-  @ApiProperty()
-  @Column({ type: 'decimal', precision: 2, scale: 1 })
-  rating: number;
+  @Column('simple-json')
+  offerings: string[]; // Example: ["Stickers", "Career Talk", "Food"]
 
   @ManyToOne(() => User, (user) => user.events, {
     eager: true,
@@ -61,11 +61,9 @@ export class Event {
   })
   user: User;
 
-  @ApiProperty()
   @CreateDateColumn()
   created_at: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   updated_at: Date;
 }

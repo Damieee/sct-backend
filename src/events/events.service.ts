@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,50 +23,70 @@ export class EventsService {
     createEventDto: CreateEventDto,
     user: User,
   ): Promise<Event> {
-    const {
-      title,
-      description,
-      date,
-      location,
-      offerings,
-      organizer_name,
-      time,
-    } = createEventDto;
-    const event = this.eventRepository.create({
-      title: title,
-      description: description,
-      date: date,
-      time: time,
-      location: location,
-      offerings: offerings,
-      organizer_name: organizer_name,
-      user,
-    });
-    await this.eventRepository.save(event);
-    return event;
+    try {
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+      const {
+        title,
+        description,
+        date_time,
+        location,
+        offerings,
+        organizer,
+        pricing,
+        registration_url,
+        type,
+      } = createEventDto;
+
+      const event = this.eventRepository.create({
+        title,
+        description,
+        date_time,
+        location,
+        offerings,
+        organizer,
+        pricing,
+        registration_url,
+        user,
+        type,
+      });
+      await this.eventRepository.save(event);
+      return event;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 
   async getEvents(eventfilter: filterDto): Promise<Event[]> {
-    const { search } = eventfilter;
-    const query = this.eventRepository.createQueryBuilder('event');
+    try {
+      const { search } = eventfilter;
+      const query = this.eventRepository.createQueryBuilder('event');
 
-    if (search) {
-      query.andWhere(
-        '(LOWER(event.title) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search) OR LOWER(event.location) LIKE LOWER(:search) OR LOWER(event.organizer_name) LIKE LOWER(:search))',
-        { search: `%${search}%` },
-      );
+      if (search) {
+        query.andWhere(
+          "(LOWER(event.title) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search) OR LOWER(event.location->>'address') LIKE LOWER(:search) OR LOWER(event.organizer->>'name') LIKE LOWER(:search))",
+          { search: `%${search}%` },
+        );
+      }
+
+      const event = await query.getMany();
+      return event;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    const event = await query.getMany();
-    return event;
   }
 
   async getEventById(id: string): Promise<Event> {
-    const event = await this.eventRepository.findOne({ where: { id } });
-    if (!event) {
-      throw new NotFoundException(`Event with ID ${id} not found`);
+    try {
+      const event = await this.eventRepository.findOne({ where: { id } });
+      if (!event) {
+        throw new NotFoundException(`Event with ID ${id} not found`);
+      }
+      return event;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return event;
   }
 
   async updateEvent(
@@ -69,20 +94,31 @@ export class EventsService {
     updateEventDto: UpdateEventDto,
     user: User,
   ): Promise<Event> {
-    const event = await this.eventRepository.findOne({ where: { id, user } });
-    if (!event) {
-      throw new NotFoundException(`Event with ID ${id} not found`);
+    try {
+      const event = await this.eventRepository.findOne({ where: { id } });
+      if (!event) {
+        throw new NotFoundException(`Event with ID ${id} not found`);
+      }
+      if (event.user.id != user.id) {
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      }
+      Object.assign(event, updateEventDto);
+      await this.eventRepository.save(event);
+      return event;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    Object.assign(event, updateEventDto);
-    await this.eventRepository.save(event);
-    return event;
   }
 
   async deleteEvent(id: string, user: User): Promise<string> {
-    const result = await this.eventRepository.delete({ id, user });
-    if (result.affected === 0) {
-      throw new NotFoundException(`Event with ID ${id} not found`);
+    try {
+      const result = await this.eventRepository.delete({ id, user });
+      if (result.affected === 0) {
+        throw new NotFoundException(`Event with ID ${id} not found`);
+      }
+      return `Event with ID ${id} deleted successfully`;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return `Event with ID ${id} deleted successfully`;
   }
 }
