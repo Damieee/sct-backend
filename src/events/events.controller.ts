@@ -12,7 +12,13 @@ import {
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Event } from './entities/event.entity';
@@ -21,11 +27,12 @@ import { filterDto } from './dto/get-events.dto';
 
 @ApiTags('events')
 @Controller('events')
-@UseGuards(AuthGuard())
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new Event' })
   @ApiResponse({
     status: 201,
@@ -62,7 +69,9 @@ export class EventsController {
     return this.eventsService.getEventById(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch('/:id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update Event by ID' })
   @ApiResponse({
     status: 200,
@@ -78,7 +87,9 @@ export class EventsController {
     return this.eventsService.updateEvent(id, updateEventDto, user);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete('/:id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete Event by ID' })
   @ApiResponse({
     status: 200,

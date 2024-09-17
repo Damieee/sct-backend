@@ -87,7 +87,7 @@ export class CreateCoWorkingSpaceDto {
   website: string;
 }
 
-// location {string, long and lat}, opening and closing , mutiple image for one co working space, review
+// mutiple image for one co working space, review
 
 // Only Admins should be able to write articles.
 
