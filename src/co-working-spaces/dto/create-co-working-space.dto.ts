@@ -5,10 +5,8 @@ import {
   IsNumber,
   IsString,
   IsOptional,
-  IsInt,
-  Max,
-  Min,
   ValidateNested,
+  Matches,
 } from 'class-validator';
 import { Weekdays } from '../weekdays.enum';
 import { Type } from 'class-transformer';
@@ -32,21 +30,29 @@ class OpeningHour {
   @IsNotEmpty()
   week_end: Weekdays;
 
-  @ApiProperty({ description: 'Opening time', example: 2 })
-  @IsNumber()
+  @ApiProperty({
+    description: 'opening time of the workspace (Format: HH:mm AM/PM)',
+    example: '10:00 AM',
+    format: 'time',
+  })
   @IsNotEmpty()
-  @IsInt()
-  @Min(0)
-  @Max(23)
-  opening_time: number;
+  @IsString()
+  @Matches(/^([0-1]?[0-9]):([0-5][0-9]) (AM|PM)$/i, {
+    message: 'opening time must be in the format HH:mm AM/PM',
+  })
+  opening_time: string;
 
-  @ApiProperty({ description: 'Closing time', example: 22 })
-  @IsNumber()
+  @ApiProperty({
+    description: 'Closing time of the workspace (Format: HH:mm AM/PM)',
+    example: '02:00 PM',
+    format: 'time',
+  })
   @IsNotEmpty()
-  @IsInt()
-  @Min(0)
-  @Max(23)
-  closing_time: number;
+  @IsString()
+  @Matches(/^([0-1]?[0-9]):([0-5][0-9]) (AM|PM)$/i, {
+    message: 'Closing time must be in the format HH:mm AM/PM',
+  })
+  closing_time: string;
 }
 
 export class CreateCoWorkingSpaceDto {

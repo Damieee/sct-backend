@@ -30,8 +30,8 @@ export class CoWorkingSpace {
   opening_hour: {
     week_start: string;
     week_end: string;
-    opening_time: number;
-    closing_time: number;
+    opening_time: string;
+    closing_time: string;
   };
 
   @Column('json')
