@@ -21,7 +21,7 @@ export class CreateStartupDto {
 
   @ApiProperty()
   @IsOptional()
-  tags: any;
+  tags: JSON;
 
   @ApiProperty()
   @IsString()

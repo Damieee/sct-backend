@@ -1,45 +1,79 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateStartupDto } from './dto/create-startup.dto';
 import { UpdateStartupDto } from './dto/update-startup.dto';
 import { Startup } from './entities/startup.entity';
 import { User } from 'src/auth/user.entity';
 import { StartupRepository } from './startups.repository';
+import { RatingRepository } from './startup-rating.repository';
+import { RateStartupDto } from './dto/startup-rating.dto';
+import { filterDto } from './dto/get-startup.dto';
 
 @Injectable()
 export class StartupsService {
   constructor(
     @InjectRepository(StartupRepository)
     private readonly startupRepository: StartupRepository,
+    @InjectRepository(RatingRepository)
+    private readonly ratingRepository: RatingRepository,
   ) {}
 
   async createStartup(
     createStartupDto: CreateStartupDto,
     user: User,
   ): Promise<Startup> {
-    const { name, description, tags, category, logo } = createStartupDto;
-    const startup = this.startupRepository.create({
-      name,
-      description,
-      tags,
-      logo,
-      category,
-      user,
-    });
-    await this.startupRepository.save(startup);
-    return startup;
+    try {
+      const { name, description, tags, category, logo } = createStartupDto;
+      const startup = this.startupRepository.create({
+        name,
+        description,
+        tags,
+        logo,
+        category,
+        user,
+      });
+      await this.startupRepository.save(startup);
+      return startup;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
-  async getStartups(): Promise<Startup[]> {
-    return this.startupRepository.find();
+  async getStartups(startupfilter: filterDto): Promise<Startup[]> {
+    try {
+      const { search } = startupfilter;
+      const query = this.startupRepository.createQueryBuilder('startup');
+
+      if (search) {
+        query.where(
+          '(LOWER(startup.name) LIKE LOWER(:search) OR LOWER(startup.description) LIKE LOWER(:search) OR LOWER(startup.category::text) LIKE LOWER(:search))',
+          { search: `%${search}%` },
+        );
+      }
+
+      const startup = await query.getMany();
+      return startup;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async getStartupById(id: string): Promise<Startup> {
-    const startup = await this.startupRepository.findOne({ where: { id } });
-    if (!startup) {
-      throw new NotFoundException(`Could not find startup with ID ${id}`);
+    try {
+      const startup = await this.startupRepository.findOne({ where: { id } });
+      if (!startup) {
+        throw new NotFoundException(`Could not find startup with ID ${id}`);
+      }
+      return startup;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return startup;
   }
 
   async updateStartup(
@@ -47,24 +81,83 @@ export class StartupsService {
     updateStartupDto: UpdateStartupDto,
     user: User,
   ): Promise<Startup> {
-    const startup = await this.startupRepository.preload({
-      id: id,
-      ...updateStartupDto,
-      user,
-    });
+    try {
+      const startup = await this.startupRepository.preload({
+        id: id,
+        ...updateStartupDto,
+        user,
+      });
 
-    if (!startup) {
-      throw new NotFoundException(`Could not find startup with ID ${id}`);
+      if (!startup) {
+        throw new NotFoundException(`Could not find startup with ID ${id}`);
+      }
+
+      return this.startupRepository.save(startup);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    return this.startupRepository.save(startup);
   }
 
   async deleteStartup(id: string, user: User): Promise<string> {
-    const result = await this.startupRepository.delete({ id, user });
-    if (result.affected === 0) {
-      throw new NotFoundException(`Could not find startup with ID ${id}`);
+    try {
+      const result = await this.startupRepository.delete({ id, user });
+      if (result.affected === 0) {
+        throw new NotFoundException(`Could not find startup with ID ${id}`);
+      }
+      return `Startup with ID ${id} deleted successfully`;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    return `Startup with ID ${id} deleted successfully`;
+  }
+
+  async rateStartup(
+    startupId: string,
+    rateStartupDto: RateStartupDto,
+    user: User,
+  ) {
+    try {
+      const { rating } = rateStartupDto;
+      const userId = user.id;
+
+      if (rating < 1 || rating > 5) {
+        throw new BadRequestException('Rating must be between 1 and 5.');
+      }
+
+      // Check if user has already rated the coworking space
+      const existingRating = await this.ratingRepository.findOne({
+        where: [{ startup: { id: startupId }, userId }],
+      });
+
+      if (existingRating) {
+        throw new Error('You have already rated this Startup.');
+      }
+
+      // Add new rating
+      const startup = await this.startupRepository.findOne({
+        where: { id: startupId },
+      });
+      if (!startup) {
+        throw new Error('Startup not found.');
+      }
+
+      const newRating = this.ratingRepository.create({
+        startup,
+        rating,
+        userId,
+      });
+
+      await this.ratingRepository.save(newRating);
+
+      // Update coworking space average rating
+      startup.totalRatings += rating;
+      startup.ratingsCount += 1;
+      startup.averageRating = startup.totalRatings / startup.ratingsCount;
+
+      await this.startupRepository.save(startup);
+
+      return startup;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

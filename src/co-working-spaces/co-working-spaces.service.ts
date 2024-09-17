@@ -15,7 +15,7 @@ import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { filterDto } from './dto/get-co-working-space.dto';
 import { v4 as uuid } from 'uuid';
 import { FilesService } from 'src/files/files.service';
-import { RatingRepository } from './rating.repository';
+import { RatingRepository } from './space-rating.repository';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
 
 @Injectable()

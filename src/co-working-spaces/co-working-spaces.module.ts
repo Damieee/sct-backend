@@ -8,11 +8,14 @@ import { AuthModule } from 'src/auth/auth.module';
 import { FilesService } from 'src/files/files.service';
 import { FileRepository } from 'src/files/files.repository';
 import { ConfigService } from '@nestjs/config';
-import { RatingRepository } from './rating.repository';
-import { Rating } from './entities/rating.entity';
+import { RatingRepository } from './space-rating.repository';
+import { SpaceRating } from './entities/space-rating.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CoWorkingSpace, Rating]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([CoWorkingSpace, SpaceRating]),
+    AuthModule,
+  ],
   controllers: [CoWorkingSpacesController],
   providers: [
     CoWorkingSpacesService,

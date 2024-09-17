@@ -9,7 +9,7 @@ import { CoWorkingSpace } from './co-working-space.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity()
-export class Rating {
+export class SpaceRating {
   @PrimaryGeneratedColumn()
   id: number;
 

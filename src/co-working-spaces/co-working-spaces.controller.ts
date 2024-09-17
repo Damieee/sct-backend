@@ -168,11 +168,6 @@ export class CoWorkingSpacesController {
     description: 'Co-WorkSpace rating has been successfully added.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiResponse({
-    status: 409,
-    description: 'You have already rated this coworking space.',
-  })
-  @ApiResponse({ status: 500, description: 'Internal Server Error.' })
   @ApiBody({ type: RateCoworkingSpaceDto })
   async rate(
     @Param('id') coworkingSpaceId: string,

@@ -6,37 +6,39 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 import { Category } from '../category.enum';
 
 @Entity()
 export class Startup {
-  @ApiProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
   @Column()
   name: string;
 
-  @ApiProperty()
   @Column()
   description: string;
 
-  @ApiProperty()
   @Column('json')
   tags: JSON;
 
-  @ApiProperty()
+  @Column({ type: 'float', default: 0 })
+  averageRating: number;
+
+  @Column({ default: 0 })
+  totalRatings: number;
+
+  @Column({ default: 0 })
+  ratingsCount: number;
+
   @Column({
     type: 'enum',
     enum: Category,
-    default: Category.OTHER, // Default value, if applicable
+    default: Category.OTHER,
   })
   category: Category;
 
-  @ApiProperty()
   @Column()
   logo: string;
 
@@ -46,11 +48,9 @@ export class Startup {
   })
   user: User;
 
-  @ApiProperty()
   @CreateDateColumn()
   created_at: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   updated_at: Date;
 }
