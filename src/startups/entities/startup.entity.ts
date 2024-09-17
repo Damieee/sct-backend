@@ -21,6 +21,22 @@ export class Startup {
   description: string;
 
   @Column('json')
+  information: {
+    address: string;
+    mapLink: string;
+    socialMedia: {
+      website?: string;
+      facebook?: string;
+      instagram?: string;
+      twitter?: string;
+      linkedIn?: string;
+      youTube?: string;
+    };
+    phoneNumber?: string;
+    email?: string;
+  };
+
+  @Column('json')
   tags: JSON;
 
   @Column({ type: 'float', default: 0 })

@@ -29,13 +29,15 @@ export class StartupsService {
     user: User,
   ): Promise<Startup> {
     try {
-      const { name, description, tags, category, logo } = createStartupDto;
+      const { name, description, tags, category, information, logo } =
+        createStartupDto;
       const startup = this.startupRepository.create({
         name,
         description,
         tags,
         logo,
         category,
+        information,
         user,
       });
       await this.startupRepository.save(startup);
