@@ -75,7 +75,7 @@ export class AuthService {
 
   async addAvatar(user: User, imageBuffer: Buffer, filename: string) {
     if (user.avatar) {
-      await this.usersRepository.update(user, {
+      await this.usersRepository.update(user.id, {
         ...user,
         avatar: null,
       });
@@ -85,7 +85,7 @@ export class AuthService {
       imageBuffer,
       filename,
     );
-    await this.usersRepository.update(user, {
+    await this.usersRepository.update(user.id, {
       ...user,
       avatar,
     });
