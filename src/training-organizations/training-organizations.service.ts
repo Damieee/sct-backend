@@ -63,6 +63,9 @@ export class TrainingOrganizationsService {
         'trainingOrganization',
       );
 
+      // Explicitly join the picture relation
+      query.leftJoinAndSelect('coworkingspace.picture', 'picture');
+
       if (search) {
         query.andWhere(
           '(LOWER(trainingOrganization.name) LIKE LOWER(:search) OR LOWER(trainingOrganization.description) LIKE LOWER(:search) OR LOWER(trainingOrganization.location) LIKE LOWER(:search) OR LOWER(trainingOrganization.email) LIKE LOWER(:search))',

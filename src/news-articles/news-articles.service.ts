@@ -47,6 +47,9 @@ export class NewsArticlesService {
       const query =
         this.newsArticleRepository.createQueryBuilder('newsarticle');
 
+      // Explicitly join the picture relation
+      query.leftJoinAndSelect('coworkingspace.picture', 'picture');
+
       if (search) {
         query.andWhere(
           '(LOWER(newsarticle.title) LIKE LOWER(:search) OR LOWER(newsarticle.category::text) LIKE LOWER(:search) OR LOWER(newsarticle.content) LIKE LOWER(:search))',

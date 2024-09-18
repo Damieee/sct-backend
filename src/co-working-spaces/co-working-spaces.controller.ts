@@ -8,7 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
-  UploadedFiles,
+  UploadedFile,
   UseInterceptors,
   HttpException,
   HttpStatus,
@@ -148,9 +148,12 @@ export class CoWorkingSpacesController {
   @UseInterceptors(FileInterceptor('file'))
   async addPicture(
     @Param('id') id: string,
-    @UploadedFiles() file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @GetUser() user: User,
   ) {
+    if (!file) {
+      throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
+    }
     return this.coWorkingSpacesService.addPicture(
       id,
       file.buffer,

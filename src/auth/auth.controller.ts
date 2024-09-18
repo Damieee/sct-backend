@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  HttpException,
+  HttpStatus,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -8,7 +10,13 @@ import {
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiConsumes,
+} from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetUser } from './get-user.decorator';
@@ -56,10 +64,28 @@ export class AuthController {
 
   @Post('avatar')
   @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data') // Specify file upload
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  }) // Swagger body for file upload
   async addAvatar(
     @GetUser() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!user) {
+      throw new HttpException('No user found', HttpStatus.BAD_REQUEST);
+    }
+    if (!file) {
+      throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
+    }
     return this.authService.addAvatar(user, file.buffer, file.originalname);
   }
 }
