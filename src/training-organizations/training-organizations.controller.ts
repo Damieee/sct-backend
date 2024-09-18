@@ -8,26 +8,36 @@ import {
   Delete,
   Query,
   UseGuards,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { TrainingOrganizationsService } from './training-organizations.service';
 import { CreateTrainingOrganizationDto } from './dto/create-training-organization.dto';
 import { UpdateTrainingOrganizationDto } from './dto/update-training-organization.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { filterDto } from './dto/get-training-organization.dto';
 import { TrainingOrganization } from './entities/training-organization.entity';
 import { User } from 'src/auth/user.entity';
+import { RateTrainingOrganizationDto } from './dto/rating.dto';
 
 @ApiTags('training-organizations')
 @Controller('training-organizations')
-@UseGuards(AuthGuard())
 export class TrainingOrganizationsController {
   constructor(
     private readonly trainingOrganizationsService: TrainingOrganizationsService,
   ) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Add a new Training Organization' })
   @ApiResponse({
     status: 201,
@@ -52,12 +62,11 @@ export class TrainingOrganizationsController {
     description: 'Training organizations have been successfully retrieved.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiBody({ type: filterDto })
   getTrainingOrganizations(
-    @Query() filterDto: filterDto,
+    @Query() trainingOrganizationFilterDto: filterDto,
   ): Promise<TrainingOrganization[]> {
     return this.trainingOrganizationsService.getTrainingOrganizations(
-      filterDto,
+      trainingOrganizationFilterDto,
     );
   }
 
@@ -74,7 +83,9 @@ export class TrainingOrganizationsController {
     return this.trainingOrganizationsService.getTrainingOrganizationById(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch('/:id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update Training Organization By ID' })
   @ApiResponse({
     status: 200,
@@ -94,7 +105,9 @@ export class TrainingOrganizationsController {
     );
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete('/:id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete Training Organization By ID' })
   @ApiResponse({
     status: 200,
@@ -109,5 +122,31 @@ export class TrainingOrganizationsController {
       id,
       user,
     );
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':id/rate')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Rate Training Organization' })
+  @ApiResponse({
+    status: 201,
+    description: 'Training Organization rating has been successfully added.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: RateTrainingOrganizationDto })
+  async rate(
+    @Param('id') trainingOrganizationId: string,
+    @Body() ratingDto: RateTrainingOrganizationDto,
+    @GetUser() user: User,
+  ) {
+    try {
+      return this.trainingOrganizationsService.rateCoworkingSpace(
+        trainingOrganizationId,
+        ratingDto,
+        user,
+      );
+    } catch (error) {
+      return new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
   }
 }

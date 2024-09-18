@@ -13,6 +13,7 @@ import { Startup } from '../startups/entities/startup.entity';
 import { NewsArticle } from '../news-articles/entities/news-article.entity';
 import { Review } from '../reviews/entities/review.entity';
 import { File } from 'src/files/entities/file.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity()
 export class User {
@@ -26,6 +27,7 @@ export class User {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @JoinColumn()

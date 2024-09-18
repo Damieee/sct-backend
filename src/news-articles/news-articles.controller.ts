@@ -12,7 +12,13 @@ import {
 import { NewsArticlesService } from './news-articles.service';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
 import { UpdateNewsArticleDto } from './dto/update-news-article.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { NewsArticle } from './entities/news-article.entity';
@@ -21,11 +27,12 @@ import { filterDto } from './dto/get-news-article.dto';
 
 @ApiTags('news-articles')
 @Controller('news-articles')
-@UseGuards(AuthGuard())
 export class NewsArticlesController {
   constructor(private readonly newsArticlesService: NewsArticlesService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Create a new News Article' })
   @ApiResponse({
     status: 201,
@@ -67,7 +74,9 @@ export class NewsArticlesController {
     return this.newsArticlesService.getNewsArticleById(id);
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Patch('/:id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Update News Article By ID' })
   @ApiResponse({
     status: 200,
@@ -87,7 +96,9 @@ export class NewsArticlesController {
     );
   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Delete('/:id')
+  @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete News Article By ID' })
   @ApiResponse({
     status: 200,

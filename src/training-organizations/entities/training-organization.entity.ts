@@ -6,42 +6,53 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 
 @Entity()
 export class TrainingOrganization {
-  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty()
   @Column()
   name: string;
 
-  @ApiProperty()
   @Column()
   description: string;
 
-  @ApiProperty()
   @Column()
   location: string;
 
-  @ApiProperty()
-  @Column()
-  courses: string;
+  @Column('simple-json')
+  courses: string[];
 
-  @ApiProperty()
-  @Column({ type: 'decimal', precision: 2, scale: 1 })
-  rating: number;
-
-  @ApiProperty()
   @Column()
   logo: string;
 
-  @ApiProperty()
+  @Column({ type: 'float', default: 0 })
+  averageRating: number;
+
+  @Column({ default: 0 })
+  totalRatings: number;
+
+  @Column({ default: 0 })
+  ratingsCount: number;
+
+  @Column('json')
+  opening_hour: {
+    week_start: string;
+    week_end: string;
+    opening_time: string;
+    closing_time: string;
+  };
+
   @Column()
-  contact_info: string;
+  website: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  phone_number: string;
 
   @ManyToOne(() => User, (user) => user.trainingOrganizations, {
     eager: true,
@@ -49,11 +60,9 @@ export class TrainingOrganization {
   })
   user: User;
 
-  @ApiProperty()
   @CreateDateColumn()
   created_at: Date;
 
-  @ApiProperty()
   @UpdateDateColumn()
   updated_at: Date;
 }

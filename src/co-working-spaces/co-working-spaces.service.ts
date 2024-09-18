@@ -13,7 +13,6 @@ import { CoWorkingSpaceRepository } from './co-working-spaces.repository';
 import { User } from 'src/auth/user.entity';
 import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { filterDto } from './dto/get-co-working-space.dto';
-import { v4 as uuid } from 'uuid';
 import { FilesService } from 'src/files/files.service';
 import { RatingRepository } from './space-rating.repository';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
@@ -42,7 +41,6 @@ export class CoWorkingSpacesService {
       phone_number,
     } = createCoWorkingSpaceDto;
     const coworkingspace = this.coworkingspaceRepository.create({
-      id: uuid(),
       name: name,
       location: location,
       daily_rate: daily_rate,

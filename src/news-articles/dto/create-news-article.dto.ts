@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Category } from '../category.enum';
 
 export class CreateNewsArticleDto {
   @ApiProperty()
@@ -12,13 +13,13 @@ export class CreateNewsArticleDto {
   @IsNotEmpty()
   content: string;
 
+  @ApiProperty({ enum: Category })
+  @IsEnum(Category)
+  @IsNotEmpty()
+  category: Category;
+
   @ApiProperty()
   @IsString()
   @IsOptional()
   image?: string;
-
-  @ApiProperty()
-  @IsNumber()
-  @IsNotEmpty()
-  user_id: number;
 }

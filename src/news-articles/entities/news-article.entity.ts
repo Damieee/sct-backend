@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
+import { Category } from '../category.enum';
 
 @Entity()
 export class NewsArticle {
@@ -26,6 +27,9 @@ export class NewsArticle {
   @ApiProperty()
   @Column()
   image: string;
+
+  @Column({ type: 'enum', enum: Category })
+  category: Category;
 
   @ManyToOne(() => User, (user) => user.newsArticles, {
     eager: true,
