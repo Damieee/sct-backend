@@ -3,11 +3,13 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/user.entity';
 import { Category } from '../category.enum';
+import { File } from 'src/files/entities/file.entity';
 
 @Entity()
 export class Startup {
@@ -63,6 +65,12 @@ export class Startup {
     onDelete: 'CASCADE',
   })
   user: User;
+
+  @OneToMany(() => File, (file) => file.startup, {
+    cascade: true,
+    eager: true,
+  })
+  pictures: File[];
 
   @CreateDateColumn()
   created_at: Date;

@@ -3,12 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 import { Category } from '../category.enum';
+import { File } from 'src/files/entities/file.entity';
 
 @Entity()
 export class NewsArticle {
@@ -24,10 +26,6 @@ export class NewsArticle {
   @Column()
   content: string;
 
-  @ApiProperty()
-  @Column()
-  image: string;
-
   @Column({ type: 'enum', enum: Category })
   category: Category;
 
@@ -36,6 +34,12 @@ export class NewsArticle {
     onDelete: 'CASCADE',
   })
   user: User;
+
+  @OneToMany(() => File, (file) => file.newsarticle, {
+    cascade: true,
+    eager: true,
+  })
+  pictures: File[];
 
   @ApiProperty()
   @CreateDateColumn()

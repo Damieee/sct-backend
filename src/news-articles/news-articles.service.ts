@@ -24,13 +24,12 @@ export class NewsArticlesService {
     user: User,
   ): Promise<NewsArticle> {
     try {
-      const { title, content, category, image } = createNewsArticleDto;
+      const { title, content, category } = createNewsArticleDto;
 
       const newsArticle = this.newsArticleRepository.create({
         title: title,
         content: content,
         category,
-        image: image,
         user,
       });
 

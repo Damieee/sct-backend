@@ -3,11 +3,13 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from '../../auth/user.entity';
 import { EventType } from '../event-type.enum';
+import { File } from 'src/files/entities/file.entity';
 
 @Entity()
 export class Event {
@@ -54,6 +56,12 @@ export class Event {
 
   @Column('simple-json')
   offerings: string[]; // Example: ["Stickers", "Career Talk", "Food"]
+
+  @OneToMany(() => File, (file) => file.event, {
+    cascade: true,
+    eager: true,
+  })
+  pictures: File[];
 
   @ManyToOne(() => User, (user) => user.events, {
     eager: true,
