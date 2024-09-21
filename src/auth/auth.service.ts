@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -92,15 +93,18 @@ export class AuthService {
     return avatar;
   }
 
-  // async deleteAvatar(userId: number) {
-  //   const user = await this.getById(userId);
-  //   const fileId = user.avatar?.id;
-  //   if (fileId) {
-  //     await this.usersRepository.update(userId, {
-  //       ...user,
-  //       avatar: null,
-  //     });
-  //     await this.fileService.deletePublicFile(fileId);
-  //   }
-  // }
+  async deleteAvatar(user: User): Promise<void> {
+    if (user.avatar) {
+      // Remove the avatar from the user entity
+      await this.usersRepository.update(user.id, {
+        ...user,
+        avatar: null,
+      });
+
+      // Delete the avatar file from the storage (e.g., S3)
+      await this.fileService.deletePublicFile(user.avatar.id);
+    } else {
+      throw new NotFoundException('User does not have an avatar to delete.');
+    }
+  }
 }

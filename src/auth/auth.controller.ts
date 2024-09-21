@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpException,
   HttpStatus,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
@@ -16,11 +18,13 @@ import {
   ApiResponse,
   ApiBody,
   ApiConsumes,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { GetUser } from './get-user.decorator';
 import { SigninCredentialsDto } from './dto/signin-credentials.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -62,7 +66,9 @@ export class AuthController {
   //     return this.authService.forgotPassword(forgotPasswordDto);
   //   }
 
+  @UseGuards(AuthGuard('jwt'))
   @Post('avatar')
+  @ApiBearerAuth('JWT')
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data') // Specify file upload
   @ApiBody({
@@ -87,5 +93,23 @@ export class AuthController {
       throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
     }
     return this.authService.addAvatar(user, file.buffer, file.originalname);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/avatar')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Delete User Avatar' })
+  @ApiResponse({
+    status: 200,
+    description: 'Avatar successfully deleted.',
+  })
+  @ApiResponse({ status: 404, description: 'Avatar not found.' })
+  @ApiResponse({ status: 403, description: 'Unauthorized to delete avatar.' })
+  async deleteAvatar(@GetUser() user: User) {
+    await this.authService.deleteAvatar(user);
+    return {
+      statusCode: 200,
+      message: 'Avatar successfully deleted.',
+    };
   }
 }
