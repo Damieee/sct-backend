@@ -3,8 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
-  OneToOne,
-  JoinColumn,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -62,9 +61,11 @@ export class CoWorkingSpace {
   @Exclude({ toPlainOnly: true })
   user: User;
 
-  @JoinColumn()
-  @OneToOne(() => File, { eager: true, nullable: true })
-  picture?: File;
+  @OneToMany(() => File, (file) => file.coworkingspace, {
+    cascade: true,
+    eager: true,
+  })
+  pictures: File[];
 
   @CreateDateColumn()
   created_at: Date;

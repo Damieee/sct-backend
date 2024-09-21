@@ -65,7 +65,7 @@ export class CoWorkingSpacesService {
     const query =
       this.coworkingspaceRepository.createQueryBuilder('coworkingspace');
     // Explicitly join the picture relation
-    query.leftJoinAndSelect('coworkingspace.picture', 'picture');
+    query.leftJoinAndSelect('coworkingspace.pictures', 'picture');
     if (search) {
       query.where(
         '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location) LIKE LOWER(:search) OR LOWER(coworkingspace.website) LIKE LOWER(:search) OR LOWER(coworkingspace.email) LIKE LOWER(:search) OR LOWER(coworkingspace.phone_number) LIKE LOWER(:search))',
@@ -154,39 +154,73 @@ export class CoWorkingSpacesService {
     await this.coworkingspaceRepository.delete({ id });
     return `Coworkingspace with id ${id} deleted successfully`;
   }
-  async addPicture(
+
+  async addPictures(
     id: string,
-    imageBuffer: Buffer,
-    filename: string,
+    files: Express.Multer.File[], // accept multiple files
     user: User,
   ) {
     const coworkingspace = await this.getcoWorkingSpaceById(id);
+
     if (!coworkingspace) {
       throw new NotFoundException(
-        `Could not find coworkingspace with id: ${id}`,
+        `Could not find coworking space with id: ${id}`,
       );
     }
-    if (coworkingspace.user.id != user.id) {
+
+    if (coworkingspace.user.id !== user.id) {
       throw new ForbiddenException(
         `Hi, ${user.full_name}, you are not authorized to update this coworking space`,
       );
     }
-    if (coworkingspace.picture) {
-      await this.coworkingspaceRepository.update(id, {
-        ...coworkingspace,
-        picture: null,
-      });
-      await this.fileService.deletePublicFile(coworkingspace.picture.id);
+
+    // Iterate over the uploaded files, and add each to the File entity
+    const uploadedFiles = [];
+    for (const file of files) {
+      const uploadedFile = await this.fileService.uploadPublicFile(
+        file.buffer,
+        file.originalname,
+      );
+      uploadedFiles.push(uploadedFile);
     }
-    const picture = await this.fileService.uploadPublicFile(
-      imageBuffer,
-      filename,
+
+    // Append the newly uploaded files to the existing pictures
+    coworkingspace.pictures = [...coworkingspace.pictures, ...uploadedFiles];
+    await this.coworkingspaceRepository.save(coworkingspace);
+
+    return uploadedFiles;
+  }
+
+  async deletePicture(coworkingSpaceId: string, fileId: string, user: User) {
+    const coworkingspace = await this.getcoWorkingSpaceById(coworkingSpaceId);
+
+    if (!coworkingspace) {
+      throw new NotFoundException(
+        `Could not find coworking space with id: ${coworkingSpaceId}`,
+      );
+    }
+
+    if (coworkingspace.user.id !== user.id) {
+      throw new ForbiddenException(
+        `You are not authorized to delete this picture`,
+      );
+    }
+
+    const picture = coworkingspace.pictures.find((pic) => pic.id === fileId);
+    if (!picture) {
+      throw new NotFoundException(`Picture not found`);
+    }
+
+    // Remove the picture from the array and update the coworking space
+    coworkingspace.pictures = coworkingspace.pictures.filter(
+      (pic) => pic.id !== fileId,
     );
-    await this.coworkingspaceRepository.update(id, {
-      ...coworkingspace,
-      picture,
-    });
-    return picture;
+    await this.coworkingspaceRepository.save(coworkingspace);
+
+    // Delete the picture from storage
+    await this.fileService.deletePublicFile(picture.id);
+
+    return { message: 'Picture deleted successfully' };
   }
 
   async rateCoworkingSpace(

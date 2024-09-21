@@ -8,7 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
-  UploadedFile,
+  UploadedFiles,
   UseInterceptors,
   HttpException,
   HttpStatus,
@@ -29,7 +29,7 @@ import { GetUser } from 'src/auth/get-user.decorator';
 import { filterDto } from './dto/get-co-working-space.dto';
 import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { User } from 'src/auth/user.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
 
@@ -125,39 +125,50 @@ export class CoWorkingSpacesController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('/picture/:id')
+  @Post('/pictures/:id')
   @ApiBearerAuth('JWT')
-  @ApiOperation({ summary: 'Add Co-WorkSpace Picture' })
+  @ApiOperation({ summary: 'Add Co-WorkSpace Pictures' })
   @ApiConsumes('multipart/form-data') // Specify file upload
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
         },
       },
     },
   }) // Swagger body for file upload
   @ApiResponse({
     status: 201,
-    description: 'Co-WorkSpace picture has been successfully added.',
+    description: 'Co-WorkSpace pictures have been successfully added.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @UseInterceptors(FileInterceptor('file'))
-  async addPicture(
+  @UseInterceptors(FilesInterceptor('files')) // Use FilesInterceptor for multiple file upload
+  async addPictures(
     @Param('id') id: string,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFiles() files: Express.Multer.File[], // Expect an array of files
     @GetUser() user: User,
   ) {
-    if (!file) {
-      throw new HttpException('No file provided', HttpStatus.BAD_REQUEST);
-    }
-    return this.coWorkingSpacesService.addPicture(
-      id,
-      file.buffer,
-      file.originalname,
+    return this.coWorkingSpacesService.addPictures(id, files, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/pictures/:coworkingSpaceId/:fileId')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Delete Co-WorkSpace Picture' })
+  async deletePicture(
+    @Param('coworkingSpaceId') coworkingSpaceId: string,
+    @Param('fileId') fileId: string,
+    @GetUser() user: User,
+  ) {
+    return this.coWorkingSpacesService.deletePicture(
+      coworkingSpaceId,
+      fileId,
       user,
     );
   }
