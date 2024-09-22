@@ -112,7 +112,7 @@ export class EventsController {
   }) // Swagger body for file upload
   @ApiResponse({
     status: 201,
-    description: 'Co-WorkSpace pictures have been successfully added.',
+    description: 'Event pictures have been successfully added.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @UseInterceptors(FilesInterceptor('files')) // Use FilesInterceptor for multiple file upload
@@ -125,9 +125,9 @@ export class EventsController {
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Delete('/pictures/:coworkingSpaceId/:fileId')
+  @Delete('/pictures/:eventId/:fileId')
   @ApiBearerAuth('JWT')
-  @ApiOperation({ summary: 'Delete Co-WorkSpace Picture' })
+  @ApiOperation({ summary: 'Delete Event Picture' })
   async deletePicture(
     @Param('eventId') eventId: string,
     @Param('fileId') fileId: string,

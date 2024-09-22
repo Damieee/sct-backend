@@ -8,6 +8,8 @@ import {
   Delete,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { NewsArticlesService } from './news-articles.service';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
@@ -18,12 +20,14 @@ import {
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { NewsArticle } from './entities/news-article.entity';
 import { User } from 'src/auth/user.entity';
 import { filterDto } from './dto/get-news-article.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('news-articles')
 @Controller('news-articles')
@@ -110,5 +114,50 @@ export class NewsArticlesController {
     @GetUser() user: User,
   ): Promise<string> {
     return this.newsArticlesService.deleteNewsArticle(id, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/pictures/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Add Event Pictures' })
+  @ApiConsumes('multipart/form-data') // Specify file upload
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  }) // Swagger body for file upload
+  @ApiResponse({
+    status: 201,
+    description: 'News Article pictures have been successfully added.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @UseInterceptors(FilesInterceptor('files')) // Use FilesInterceptor for multiple file upload
+  async addPictures(
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[], // Expect an array of files
+    @GetUser() user: User,
+  ) {
+    return this.newsArticlesService.addPictures(id, files, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/pictures/:newsArticleId/:fileId')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Delete News Article Picture' })
+  async deletePicture(
+    @Param('newsId') newsArticleId: string,
+    @Param('fileId') fileId: string,
+    @GetUser() user: User,
+  ) {
+    return this.newsArticlesService.deletePicture(newsArticleId, fileId, user);
   }
 }
