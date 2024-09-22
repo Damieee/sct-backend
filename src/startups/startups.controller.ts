@@ -10,6 +10,8 @@ import {
   HttpException,
   HttpStatus,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { StartupsService } from './startups.service';
 import { CreateStartupDto } from './dto/create-startup.dto';
@@ -20,6 +22,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
@@ -27,6 +30,7 @@ import { Startup } from './entities/startup.entity';
 import { User } from 'src/auth/user.entity';
 import { RateStartupDto } from './dto/startup-rating.dto';
 import { filterDto } from './dto/get-startup.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('startups')
 @Controller('startups')
@@ -126,5 +130,50 @@ export class StartupsController {
     } catch (error) {
       return new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/pictures/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Add Startup Pictures' })
+  @ApiConsumes('multipart/form-data') // Specify file upload
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  }) // Swagger body for file upload
+  @ApiResponse({
+    status: 201,
+    description: 'Startup pictures have been successfully added.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @UseInterceptors(FilesInterceptor('files')) // Use FilesInterceptor for multiple file upload
+  async addPictures(
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[], // Expect an array of files
+    @GetUser() user: User,
+  ) {
+    return this.startupsService.addPictures(id, files, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/pictures/:startupId/:fileId')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Delete Startup Picture' })
+  async deletePicture(
+    @Param('startupId') startupId: string,
+    @Param('fileId') fileId: string,
+    @GetUser() user: User,
+  ) {
+    return this.startupsService.deletePicture(startupId, fileId, user);
   }
 }

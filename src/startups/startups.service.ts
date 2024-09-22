@@ -14,6 +14,7 @@ import { StartupRepository } from './startups.repository';
 import { RatingRepository } from './startup-rating.repository';
 import { RateStartupDto } from './dto/startup-rating.dto';
 import { filterDto } from './dto/get-startup.dto';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class StartupsService {
@@ -22,6 +23,7 @@ export class StartupsService {
     private readonly startupRepository: StartupRepository,
     @InjectRepository(RatingRepository)
     private readonly ratingRepository: RatingRepository,
+    private fileService: FilesService,
   ) {}
 
   async createStartup(
@@ -53,7 +55,7 @@ export class StartupsService {
       const query = this.startupRepository.createQueryBuilder('startup');
 
       // Explicitly join the picture relation
-      query.leftJoinAndSelect('coworkingspace.picture', 'picture');
+      query.leftJoinAndSelect('startup.pictures', 'picture');
 
       if (search) {
         query.where(
@@ -164,5 +166,62 @@ export class StartupsService {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+  async addPictures(
+    id: string,
+    files: Express.Multer.File[], // accept multiple files
+    user: User,
+  ) {
+    const startup = await this.startupRepository.findOne({
+      where: { id },
+    });
+    if (!startup) {
+      throw new NotFoundException(`Startup with ID ${id} not found`);
+    }
+    if (startup.user.id != user.id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    // Iterate over the uploaded files, and add each to the File entity
+    const uploadedFiles = [];
+    for (const file of files) {
+      const uploadedFile = await this.fileService.uploadPublicFile(
+        file.buffer,
+        file.originalname,
+      );
+      uploadedFiles.push(uploadedFile);
+    }
+
+    // Append the newly uploaded files to the existing pictures
+    startup.pictures = [...startup.pictures, ...uploadedFiles];
+    await this.startupRepository.save(startup);
+
+    return uploadedFiles;
+  }
+
+  async deletePicture(startupId: string, fileId: string, user: User) {
+    const startup = await this.startupRepository.findOne({
+      where: { id: startupId },
+    });
+    if (!startup) {
+      throw new NotFoundException(`Startup with ID ${startupId} not found`);
+    }
+    if (startup.user.id != user.id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    const picture = startup.pictures.find((pic) => pic.id === fileId);
+    if (!picture) {
+      throw new NotFoundException(`Picture not found`);
+    }
+
+    // Remove the picture from the array and update the News
+    startup.pictures = startup.pictures.filter((pic) => pic.id !== fileId);
+    await this.startupRepository.save(startup);
+
+    // Delete the picture from storage
+    await this.fileService.deletePublicFile(picture.id);
+
+    return { message: 'Picture deleted successfully' };
   }
 }
