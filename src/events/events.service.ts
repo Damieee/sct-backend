@@ -65,10 +65,12 @@ export class EventsService {
       const { search } = eventfilter;
       const query = this.eventRepository.createQueryBuilder('event');
       // Explicitly join the picture relation
-      query.leftJoinAndSelect('event.pictures', 'picture');
+      query
+        .leftJoinAndSelect('event.pictures', 'picture')
+        .leftJoinAndSelect('event.user', 'user');
       if (search) {
         query.andWhere(
-          "(LOWER(event.title) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search) OR LOWER(event.location->>'address') LIKE LOWER(:search) OR LOWER(event.organizer->>'name') LIKE LOWER(:search))",
+          '(LOWER(event.title) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search) OR LOWER(event.location::text) LIKE LOWER(:search) OR LOWER(event.organizer::text) LIKE LOWER(:search))',
           { search: `%${search}%` },
         );
       }

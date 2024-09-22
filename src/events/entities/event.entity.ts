@@ -34,7 +34,13 @@ export class Event {
   @Column('json')
   location: {
     address: string; // Example: "Island 4, North Pacific Ocean"
-    link: string; // Example: "http://maps.google.com/..."
+    url: string; // Example: "http://maps.google.com/..."
+    latitude: number;
+    longitude: number;
+    city: string;
+    state_province: string;
+    country: string;
+    postal_code: string;
   };
 
   @Column({ type: 'varchar', nullable: true })
