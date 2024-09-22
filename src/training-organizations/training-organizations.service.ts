@@ -12,8 +12,9 @@ import { User } from 'src/auth/user.entity';
 import { TrainingOrganization } from './entities/training-organization.entity';
 import { filterDto } from './dto/get-training-organization.dto';
 import { TrainingOrganizationRepository } from './training-organizations.repository';
-import { RatingRepository } from './training-organization.repository';
+import { RatingRepository } from './training-organization-rating.repository';
 import { RateTrainingOrganizationDto } from './dto/rating.dto';
+import { FilesService } from 'src/files/files.service';
 @Injectable()
 export class TrainingOrganizationsService {
   constructor(
@@ -21,6 +22,7 @@ export class TrainingOrganizationsService {
     @InjectRepository(RatingRepository)
     private ratingRepository: RatingRepository,
     private trainingOrganizationRepository: TrainingOrganizationRepository,
+    private fileService: FilesService,
   ) {}
 
   async createTrainingOrganization(
@@ -64,7 +66,7 @@ export class TrainingOrganizationsService {
       );
 
       // Explicitly join the picture relation
-      query.leftJoinAndSelect('coworkingspace.picture', 'picture');
+      query.leftJoinAndSelect('trainingOrganization.pictures', 'picture');
 
       if (search) {
         query.andWhere(
@@ -105,9 +107,12 @@ export class TrainingOrganizationsService {
     try {
       const trainingOrganization =
         await this.trainingOrganizationRepository.findOne({
-          where: { id, user },
+          where: { id },
         });
 
+      if (trainingOrganization.user.id != user.id) {
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      }
       if (!trainingOrganization) {
         throw new NotFoundException(
           `Could not find training organization with id: ${id}`,
@@ -193,5 +198,80 @@ export class TrainingOrganizationsService {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  async addPictures(
+    id: string,
+    files: Express.Multer.File[], // accept multiple files
+    user: User,
+  ) {
+    const trainingorganization =
+      await this.trainingOrganizationRepository.findOne({
+        where: { id },
+      });
+    if (!trainingorganization) {
+      throw new NotFoundException(
+        `Training Organization with ID ${id} not found`,
+      );
+    }
+    if (trainingorganization.user.id != user.id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    // Iterate over the uploaded files, and add each to the File entity
+    const uploadedFiles = [];
+    for (const file of files) {
+      const uploadedFile = await this.fileService.uploadPublicFile(
+        file.buffer,
+        file.originalname,
+      );
+      uploadedFiles.push(uploadedFile);
+    }
+
+    // Append the newly uploaded files to the existing pictures
+    trainingorganization.pictures = [
+      ...trainingorganization.pictures,
+      ...uploadedFiles,
+    ];
+    await this.trainingOrganizationRepository.save(trainingorganization);
+
+    return uploadedFiles;
+  }
+
+  async deletePicture(
+    trainingOrganizationId: string,
+    fileId: string,
+    user: User,
+  ) {
+    const trainingOrganization =
+      await this.trainingOrganizationRepository.findOne({
+        where: { id: trainingOrganizationId },
+      });
+    if (!trainingOrganization) {
+      throw new NotFoundException(
+        `Training Organization with ID ${trainingOrganizationId} not found`,
+      );
+    }
+    if (trainingOrganization.user.id != user.id) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
+    const picture = trainingOrganization.pictures.find(
+      (pic) => pic.id === fileId,
+    );
+    if (!picture) {
+      throw new NotFoundException(`Picture not found`);
+    }
+
+    // Remove the picture from the array and update the News
+    trainingOrganization.pictures = trainingOrganization.pictures.filter(
+      (pic) => pic.id !== fileId,
+    );
+    await this.trainingOrganizationRepository.save(trainingOrganization);
+
+    // Delete the picture from storage
+    await this.fileService.deletePublicFile(picture.id);
+
+    return { message: 'Picture deleted successfully' };
   }
 }

@@ -5,8 +5,10 @@ import { TrainingOrganization } from './entities/training-organization.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TrainingOrganizationRepository } from './training-organizations.repository';
-import { RatingRepository } from './training-organization.repository';
+import { RatingRepository } from './training-organization-rating.repository';
 import { OrganizationRating } from './entities/training-organization-rating.entity';
+import { FilesService } from 'src/files/files.service';
+import { FileRepository } from 'src/files/files.repository';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { OrganizationRating } from './entities/training-organization-rating.enti
     TrainingOrganizationsService,
     TrainingOrganizationRepository,
     RatingRepository,
+    FilesService,
+    FileRepository,
   ],
 })
 export class TrainingOrganizationsModule {}

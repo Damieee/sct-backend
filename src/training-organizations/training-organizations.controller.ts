@@ -10,6 +10,8 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { TrainingOrganizationsService } from './training-organizations.service';
 import { CreateTrainingOrganizationDto } from './dto/create-training-organization.dto';
@@ -20,6 +22,7 @@ import {
   ApiResponse,
   ApiBody,
   ApiBearerAuth,
+  ApiConsumes,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
@@ -27,6 +30,7 @@ import { filterDto } from './dto/get-training-organization.dto';
 import { TrainingOrganization } from './entities/training-organization.entity';
 import { User } from 'src/auth/user.entity';
 import { RateTrainingOrganizationDto } from './dto/rating.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('training-organizations')
 @Controller('training-organizations')
@@ -148,5 +152,53 @@ export class TrainingOrganizationsController {
     } catch (error) {
       return new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/pictures/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Add Training Organization Pictures' })
+  @ApiConsumes('multipart/form-data') // Specify file upload
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  }) // Swagger body for file upload
+  @ApiResponse({
+    status: 201,
+    description: 'Training Organization pictures have been successfully added.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @UseInterceptors(FilesInterceptor('files')) // Use FilesInterceptor for multiple file upload
+  async addPictures(
+    @Param('id') id: string,
+    @UploadedFiles() files: Express.Multer.File[], // Expect an array of files
+    @GetUser() user: User,
+  ) {
+    return this.trainingOrganizationsService.addPictures(id, files, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete('/pictures/:trainingOrganizationId/:fileId')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Delete Training Organization Picture' })
+  async deletePicture(
+    @Param('trainingOrganizationId') trainingOrganizationId: string,
+    @Param('fileId') fileId: string,
+    @GetUser() user: User,
+  ) {
+    return this.trainingOrganizationsService.deletePicture(
+      trainingOrganizationId,
+      fileId,
+      user,
+    );
   }
 }
