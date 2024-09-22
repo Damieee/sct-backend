@@ -66,7 +66,9 @@ export class TrainingOrganizationsService {
       );
 
       // Explicitly join the picture relation
-      query.leftJoinAndSelect('trainingOrganization.pictures', 'picture');
+      query
+        .leftJoinAndSelect('trainingOrganization.pictures', 'picture')
+        .leftJoinAndSelect('trainingOrganization.user', 'user');
 
       if (search) {
         query.andWhere(

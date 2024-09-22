@@ -65,7 +65,9 @@ export class CoWorkingSpacesService {
     const query =
       this.coworkingspaceRepository.createQueryBuilder('coworkingspace');
     // Explicitly join the picture relation
-    query.leftJoinAndSelect('coworkingspace.pictures', 'picture');
+    query
+      .leftJoinAndSelect('coworkingspace.pictures', 'picture')
+      .leftJoinAndSelect('coworkingspace.user', 'user');
     if (search) {
       query.where(
         '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location) LIKE LOWER(:search) OR LOWER(coworkingspace.website) LIKE LOWER(:search) OR LOWER(coworkingspace.email) LIKE LOWER(:search) OR LOWER(coworkingspace.phone_number) LIKE LOWER(:search))',

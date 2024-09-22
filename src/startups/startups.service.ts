@@ -55,8 +55,9 @@ export class StartupsService {
       const query = this.startupRepository.createQueryBuilder('startup');
 
       // Explicitly join the picture relation
-      query.leftJoinAndSelect('startup.pictures', 'picture');
-
+      query
+        .leftJoinAndSelect('startup.pictures', 'picture')
+        .leftJoinAndSelect('startup.user', 'user');
       if (search) {
         query.where(
           '(LOWER(startup.name) LIKE LOWER(:search) OR LOWER(startup.description) LIKE LOWER(:search) OR LOWER(startup.category::text) LIKE LOWER(:search))',

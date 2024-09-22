@@ -49,8 +49,9 @@ export class NewsArticlesService {
         this.newsArticleRepository.createQueryBuilder('newsarticle');
 
       // Explicitly join the picture relation
-      query.leftJoinAndSelect('newsarticle.pictures', 'picture');
-
+      query
+        .leftJoinAndSelect('newsarticle.pictures', 'picture')
+        .leftJoinAndSelect('newsarticle.user', 'user');
       if (search) {
         query.andWhere(
           '(LOWER(newsarticle.title) LIKE LOWER(:search) OR LOWER(newsarticle.category::text) LIKE LOWER(:search) OR LOWER(newsarticle.content) LIKE LOWER(:search))',

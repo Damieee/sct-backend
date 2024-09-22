@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { User } from '../../auth/user.entity';
 import { File } from 'src/files/entities/file.entity';
-import { Exclude } from 'class-transformer';
 
 @Entity()
 export class CoWorkingSpace {
@@ -58,7 +57,6 @@ export class CoWorkingSpace {
     eager: true,
     onDelete: 'CASCADE',
   })
-  @Exclude({ toPlainOnly: true })
   user: User;
 
   @OneToMany(() => File, (file) => file.coworkingspace, {

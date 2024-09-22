@@ -24,13 +24,59 @@ class Location {
   address: string;
 
   @ApiProperty({
-    description: 'Google Map Link',
+    description: 'Google Map Url',
     example:
       'http://maps.google.com/maps?z=11&t=k&q=58%2041.881N%20152%2031.324W',
   })
   @IsString()
   @IsNotEmpty()
-  link: string;
+  url: string;
+
+  @ApiProperty({
+    description: 'Latitude',
+    example: '41.88193',
+  })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({
+    description: 'Longitude',
+    example: '-152.31368',
+  })
+  @IsNumber()
+  longitude: number;
+
+  @ApiProperty({
+    description: 'City',
+    example: 'Anytown',
+  })
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @ApiProperty({
+    description: 'State/Province',
+    example: 'Alaska',
+  })
+  @IsString()
+  @IsNotEmpty()
+  state_province: string;
+
+  @ApiProperty({
+    description: 'Country',
+    example: 'USA',
+  })
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  @ApiProperty({
+    description: 'Postal Code',
+    example: '99547',
+  })
+  @IsString()
+  @IsNotEmpty()
+  postal_code: string;
 }
 
 class OrganizerDetails {
