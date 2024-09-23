@@ -13,6 +13,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { EventType } from '../event-type.enum';
+import { Category } from '../category.enum';
 
 class Location {
   @ApiProperty({
@@ -151,7 +152,7 @@ export class CreateEventDto {
   description: string;
 
   @ApiProperty({
-    description: 'Type ppf the Event',
+    description: 'Type of the Event',
     example: 'In-Person',
     enum: EventType,
   })
@@ -194,6 +195,11 @@ export class CreateEventDto {
   @IsString()
   @IsOptional()
   registration_url: string;
+
+  @ApiProperty({ enum: Category })
+  @IsEnum(Category)
+  @IsNotEmpty()
+  category: Category;
 
   // Offerings: List of what is included (e.g., materials, refreshments)
   @ApiProperty({

@@ -10,6 +10,7 @@ import {
 import { User } from '../../auth/user.entity';
 import { EventType } from '../event-type.enum';
 import { File } from 'src/files/entities/file.entity';
+import { Category } from '../category.enum';
 
 @Entity()
 export class Event {
@@ -48,6 +49,13 @@ export class Event {
 
   @Column({ type: 'int', nullable: true })
   pricing?: number;
+
+  @Column({
+    type: 'enum',
+    enum: Category,
+    default: Category.OTHER,
+  })
+  category: Category;
 
   @Column('json')
   organizer: {
