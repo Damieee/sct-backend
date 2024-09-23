@@ -39,6 +39,7 @@ export class EventsService {
         pricing,
         registration_url,
         type,
+        category,
       } = createEventDto;
 
       const event = this.eventRepository.create({
@@ -52,6 +53,7 @@ export class EventsService {
         registration_url,
         user,
         type,
+        category,
       });
       await this.eventRepository.save(event);
       return event;
@@ -62,17 +64,60 @@ export class EventsService {
 
   async getEvents(eventfilter: filterDto): Promise<Event[]> {
     try {
-      const { search } = eventfilter;
+      const { date, description, location, pricing, title, type, category } =
+        eventfilter;
+
       const query = this.eventRepository.createQueryBuilder('event');
       // Explicitly join the picture relation
       query
         .leftJoinAndSelect('event.pictures', 'picture')
         .leftJoinAndSelect('event.user', 'user');
-      if (search) {
-        query.andWhere(
-          '(LOWER(event.title) LIKE LOWER(:search) OR LOWER(event.description) LIKE LOWER(:search) OR LOWER(event.location::text) LIKE LOWER(:search) OR LOWER(event.organizer::text) LIKE LOWER(:search))',
-          { search: `%${search}%` },
-        );
+
+      if (location) {
+        query.andWhere('LOWER(event.location::text) LIKE LOWER(:location)', {
+          location: `%${location}%`,
+        });
+      }
+
+      // Filter by title
+      if (title) {
+        query.andWhere('LOWER(event.title) LIKE LOWER(:title)', {
+          title: `%${title}%`,
+        });
+      }
+
+      // Filter by description
+      if (description) {
+        query.andWhere('LOWER(event.description) LIKE LOWER(:description)', {
+          description: `%${description}%`,
+        });
+      }
+
+      if (pricing) {
+        query.andWhere('event.pricing <= :pricing', {
+          pricing: pricing,
+        });
+      }
+
+      // Filter by event date (assuming `Date` is the event start date)
+      if (date) {
+        query.andWhere('LOWER(event.date_time::text) LIKE LOWER(:date)', {
+          date: `%${date}%`,
+        });
+      }
+
+      // Filter by event type (e.g., In-Person, Online, etc.)
+      if (type) {
+        query.andWhere('event.type = :type', {
+          type: type,
+        });
+      }
+
+      // Filter by event type (e.g., In-Person, Online, etc.)
+      if (category) {
+        query.andWhere('event.category = :category', {
+          category: category,
+        });
       }
 
       const event = await query.getMany();
