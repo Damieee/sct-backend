@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -73,6 +75,31 @@ export class AuthService {
   //     return { message: 'Password reset link has been sent' };
   //   }
   // }
+
+  async getUserById(id: string): Promise<User> {
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id },
+        relations: [
+          'events',
+          'trainingOrganizations',
+          'coWorkingSpaces',
+          'startups',
+          'newsArticles',
+          'reviews',
+          'avatar',
+        ],
+      });
+
+      if (!user) {
+        throw new NotFoundException(`Could not find user with ID ${id}`);
+      }
+
+      return user;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   async addAvatar(user: User, imageBuffer: Buffer, filename: string) {
     if (user.avatar) {

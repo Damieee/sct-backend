@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   UploadedFile,
   UseGuards,
@@ -65,6 +67,17 @@ export class AuthController {
   //   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
   //     return this.authService.forgotPassword(forgotPasswordDto);
   //   }
+
+  @Get('/:id')
+  @ApiOperation({ summary: 'Get User By ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'User retrieved successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  getNewsArticleById(@Param('id') id: string): Promise<User> {
+    return this.authService.getUserById(id);
+  }
 
   @UseGuards(AuthGuard('jwt'))
   @Post('avatar')
