@@ -24,8 +24,6 @@ export class Startup {
 
   @Column('json')
   information: {
-    address: string;
-    mapLink: string;
     socialMedia: {
       website?: string;
       facebook?: string;
@@ -36,6 +34,18 @@ export class Startup {
     };
     phoneNumber?: string;
     email?: string;
+  };
+
+  @Column('json')
+  location: {
+    url: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    city: string;
+    state_province: string;
+    country: string;
+    postal_code: string;
   };
 
   @Column('json')

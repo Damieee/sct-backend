@@ -11,6 +11,71 @@ import {
 import { Weekdays } from '../weekdays.enum';
 import { Type } from 'class-transformer';
 
+class Location {
+  @ApiProperty({
+    description: 'Address Description',
+    example: 'Island 4, North Pacific Ocean, Behind Atlantic Ocean',
+  })
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @ApiProperty({
+    description: 'Google Map Url',
+    example:
+      'http://maps.google.com/maps?z=11&t=k&q=58%2041.881N%20152%2031.324W',
+  })
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @ApiProperty({
+    description: 'Latitude',
+    example: '41.88193',
+  })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({
+    description: 'Longitude',
+    example: '-152.31368',
+  })
+  @IsNumber()
+  longitude: number;
+
+  @ApiProperty({
+    description: 'City',
+    example: 'Anytown',
+  })
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @ApiProperty({
+    description: 'State/Province',
+    example: 'Alaska',
+  })
+  @IsString()
+  @IsNotEmpty()
+  state_province: string;
+
+  @ApiProperty({
+    description: 'Country',
+    example: 'USA',
+  })
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  @ApiProperty({
+    description: 'Postal Code',
+    example: '99547',
+  })
+  @IsString()
+  @IsNotEmpty()
+  postal_code: string;
+}
+
 class OpeningHour {
   @ApiProperty({
     description: 'Start Day of the week',
@@ -61,10 +126,10 @@ export class CreateCoWorkingSpaceDto {
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'The location address of the coworking space' })
-  @IsString()
-  @IsNotEmpty()
-  location: string;
+  @ApiProperty({ description: 'Location details' })
+  @ValidateNested({ each: true })
+  @Type(() => Location)
+  location: Location;
 
   @ApiProperty({ description: 'Opening hour details' })
   @ValidateNested({ each: true })
@@ -92,8 +157,6 @@ export class CreateCoWorkingSpaceDto {
   @IsOptional()
   website: string;
 }
-
-// mutiple image for one co working space, review
 
 // Only Admins should be able to write articles.
 

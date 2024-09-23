@@ -144,7 +144,7 @@ export class TrainingOrganizationsController {
     @GetUser() user: User,
   ) {
     try {
-      return this.trainingOrganizationsService.rateCoworkingSpace(
+      return this.trainingOrganizationsService.rateTrainingOrganization(
         trainingOrganizationId,
         ratingDto,
         user,

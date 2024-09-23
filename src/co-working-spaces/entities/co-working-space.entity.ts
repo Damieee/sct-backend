@@ -18,8 +18,17 @@ export class CoWorkingSpace {
   @Column()
   name: string;
 
-  @Column()
-  location: string;
+  @Column('json')
+  location: {
+    address: string;
+    url: string;
+    latitude: number;
+    longitude: number;
+    city: string;
+    state_province: string;
+    country: string;
+    postal_code: string;
+  };
 
   @Column()
   daily_rate: number;

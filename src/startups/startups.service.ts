@@ -31,7 +31,7 @@ export class StartupsService {
     user: User,
   ): Promise<Startup> {
     try {
-      const { name, description, tags, category, information, logo } =
+      const { name, description, tags, category, information, location, logo } =
         createStartupDto;
       const startup = this.startupRepository.create({
         name,
@@ -40,6 +40,7 @@ export class StartupsService {
         logo,
         category,
         information,
+        location,
         user,
       });
       await this.startupRepository.save(startup);
@@ -60,7 +61,7 @@ export class StartupsService {
         .leftJoinAndSelect('startup.user', 'user');
       if (search) {
         query.where(
-          '(LOWER(startup.name) LIKE LOWER(:search) OR LOWER(startup.description) LIKE LOWER(:search) OR LOWER(startup.category::text) LIKE LOWER(:search))',
+          '(LOWER(startup.name) LIKE LOWER(:search) OR LOWER(startup.description) LIKE LOWER(:search) OR LOWER(startup.category::text) LIKE LOWER(:search) OR LOWER(startup.information::text) LIKE LOWER(:search) OR LOWER(startup.location::text) LIKE LOWER(:search))',
           { search: `%${search}%` },
         );
       }

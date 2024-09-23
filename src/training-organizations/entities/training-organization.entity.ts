@@ -21,8 +21,17 @@ export class TrainingOrganization {
   @Column()
   description: string;
 
-  @Column()
-  location: string;
+  @Column('json')
+  location: {
+    url: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    city: string;
+    state_province: string;
+    country: string;
+    postal_code: string;
+  };
 
   @Column('simple-json')
   courses: string[];

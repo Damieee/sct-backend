@@ -70,7 +70,7 @@ export class CoWorkingSpacesService {
       .leftJoinAndSelect('coworkingspace.user', 'user');
     if (search) {
       query.where(
-        '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location) LIKE LOWER(:search) OR LOWER(coworkingspace.website) LIKE LOWER(:search) OR LOWER(coworkingspace.email) LIKE LOWER(:search) OR LOWER(coworkingspace.phone_number) LIKE LOWER(:search))',
+        '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location::text) LIKE LOWER(:search) OR LOWER(coworkingspace.website) LIKE LOWER(:search) OR LOWER(coworkingspace.email) LIKE LOWER(:search) OR LOWER(coworkingspace.phone_number) LIKE LOWER(:search))',
         { search: `%${search}%` },
       );
     }

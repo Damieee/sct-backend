@@ -15,14 +15,14 @@ export class OrganizationRating {
 
   @ManyToOne(
     () => TrainingOrganization,
-    (trainingOrganization) => trainingOrganization.averageRating,
+    (trainingorganization) => trainingorganization.averageRating,
     {
       eager: true,
       onDelete: 'CASCADE',
     },
   )
   @Exclude({ toPlainOnly: true })
-  trainingOrganization: TrainingOrganization;
+  trainingorganization: TrainingOrganization;
 
   @Column({ type: 'int' })
   rating: number; // between 1-5

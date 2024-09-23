@@ -62,17 +62,17 @@ export class TrainingOrganizationsService {
     try {
       const { search } = filterDto;
       const query = this.trainingOrganizationRepository.createQueryBuilder(
-        'trainingOrganization',
+        'trainingorganization',
       );
 
       // Explicitly join the picture relation
       query
-        .leftJoinAndSelect('trainingOrganization.pictures', 'picture')
-        .leftJoinAndSelect('trainingOrganization.user', 'user');
+        .leftJoinAndSelect('trainingorganization.pictures', 'picture')
+        .leftJoinAndSelect('trainingorganization.user', 'user');
 
       if (search) {
         query.andWhere(
-          '(LOWER(trainingOrganization.name) LIKE LOWER(:search) OR LOWER(trainingOrganization.description) LIKE LOWER(:search) OR LOWER(trainingOrganization.location) LIKE LOWER(:search) OR LOWER(trainingOrganization.email) LIKE LOWER(:search))',
+          '(LOWER(trainingorganization.name) LIKE LOWER(:search) OR LOWER(trainingorganization.description) LIKE LOWER(:search) OR LOWER(trainingorganization.location::text) LIKE LOWER(:search) OR LOWER(trainingorganization.email) LIKE LOWER(:search))',
           { search: `%${search}%` },
         );
       }
@@ -148,7 +148,7 @@ export class TrainingOrganizationsService {
     }
   }
 
-  async rateCoworkingSpace(
+  async rateTrainingOrganization(
     trainingOrganizationId: string,
     rateTrainingOrganizationDto: RateTrainingOrganizationDto,
     user: User,
@@ -164,7 +164,7 @@ export class TrainingOrganizationsService {
       // Check if user has already rated the training organization
       const existingRating = await this.ratingRepository.findOne({
         where: [
-          { trainingOrganization: { id: trainingOrganizationId }, userId },
+          { trainingorganization: { id: trainingOrganizationId }, userId },
         ],
       });
 
@@ -181,7 +181,7 @@ export class TrainingOrganizationsService {
       }
 
       const newRating = this.ratingRepository.create({
-        trainingOrganization: trainingOrg,
+        trainingorganization: trainingOrg,
         rating,
         userId,
       });

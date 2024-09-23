@@ -61,6 +61,70 @@ class SocialMedia {
   youTube: string;
 }
 
+class Location {
+  @ApiProperty({
+    description: 'Address Description',
+    example: 'Island 4, North Pacific Ocean, Behind Atlantic Ocean',
+  })
+  @IsString()
+  @IsNotEmpty()
+  address: string;
+
+  @ApiProperty({
+    description: 'Google Map Url',
+    example:
+      'http://maps.google.com/maps?z=11&t=k&q=58%2041.881N%20152%2031.324W',
+  })
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @ApiProperty({
+    description: 'Latitude',
+    example: '41.88193',
+  })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({
+    description: 'Longitude',
+    example: '-152.31368',
+  })
+  @IsNumber()
+  longitude: number;
+
+  @ApiProperty({
+    description: 'City',
+    example: 'Anytown',
+  })
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @ApiProperty({
+    description: 'State/Province',
+    example: 'Alaska',
+  })
+  @IsString()
+  @IsNotEmpty()
+  state_province: string;
+
+  @ApiProperty({
+    description: 'Country',
+    example: 'USA',
+  })
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  @ApiProperty({
+    description: 'Postal Code',
+    example: '99547',
+  })
+  @IsString()
+  @IsNotEmpty()
+  postal_code: string;
+}
 class Information {
   @ApiProperty({
     description: 'Address Description',
@@ -71,12 +135,59 @@ class Information {
   address: string;
 
   @ApiProperty({
-    description: 'Google Map Link',
-    example: 'https://googlemap.com/secondarycity',
+    description: 'Google Map Url',
+    example:
+      'http://maps.google.com/maps?z=11&t=k&q=58%2041.881N%20152%2031.324W',
   })
   @IsString()
   @IsNotEmpty()
-  mapLink: string;
+  url: string;
+
+  @ApiProperty({
+    description: 'Latitude',
+    example: '41.88193',
+  })
+  @IsNumber()
+  latitude: number;
+
+  @ApiProperty({
+    description: 'Longitude',
+    example: '-152.31368',
+  })
+  @IsNumber()
+  longitude: number;
+
+  @ApiProperty({
+    description: 'City',
+    example: 'Anytown',
+  })
+  @IsString()
+  @IsNotEmpty()
+  city: string;
+
+  @ApiProperty({
+    description: 'State/Province',
+    example: 'Alaska',
+  })
+  @IsString()
+  @IsNotEmpty()
+  state_province: string;
+
+  @ApiProperty({
+    description: 'Country',
+    example: 'USA',
+  })
+  @IsString()
+  @IsNotEmpty()
+  country: string;
+
+  @ApiProperty({
+    description: 'Postal Code',
+    example: '99547',
+  })
+  @IsString()
+  @IsNotEmpty()
+  postal_code: string;
 
   @ApiProperty({
     description: 'Contact Information',
@@ -115,6 +226,11 @@ export class CreateStartupDto {
   @ValidateNested({ each: true })
   @Type(() => Information)
   information: Information;
+
+  @ApiProperty({ description: 'Location details' })
+  @ValidateNested({ each: true })
+  @Type(() => Location)
+  location: Location;
 
   @ApiProperty()
   @IsOptional()
