@@ -64,8 +64,16 @@ export class EventsService {
 
   async getEvents(eventfilter: filterDto): Promise<Event[]> {
     try {
-      const { date, description, location, pricing, title, type, category } =
-        eventfilter;
+      const {
+        description,
+        location,
+        pricing,
+        title,
+        type,
+        category,
+        fromDate,
+        toDate,
+      } = eventfilter;
 
       const query = this.eventRepository.createQueryBuilder('event');
       // Explicitly join the picture relation
@@ -99,10 +107,22 @@ export class EventsService {
         });
       }
 
-      // Filter by event date (assuming `Date` is the event start date)
-      if (date) {
-        query.andWhere('LOWER(event.date_time::text) LIKE LOWER(:date)', {
-          date: `%${date}%`,
+      // Handle date range filtering for JSON date fields
+      if (fromDate && toDate) {
+        query.andWhere(
+          `event.date_time->>'startDate' >= :fromDate AND event.date_time->>'endDate' <= :toDate`,
+          {
+            fromDate: fromDate,
+            toDate: toDate,
+          },
+        );
+      } else if (fromDate) {
+        query.andWhere(`event.date_time->>'startDate' >= :fromDate`, {
+          fromDate: fromDate,
+        });
+      } else if (toDate) {
+        query.andWhere(`event.date_time->>'endDate' <= :toDate`, {
+          toDate: toDate,
         });
       }
 

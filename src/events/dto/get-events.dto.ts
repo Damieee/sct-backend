@@ -36,7 +36,7 @@ export class filterDto {
   pricing: number;
 
   @ApiProperty({
-    description: 'Search by datetime of the event (ISO 8601 format)',
+    description: 'Start date and time of the event (ISO 8601 format)',
     example: '2020-02-05T06:35:22.000Z',
     format: 'date-time', // This indicates ISO 8601 date-time format
   })
@@ -45,7 +45,19 @@ export class filterDto {
     { strict: true },
     { message: 'Start date must be in ISO 8601 format' },
   )
-  date: string;
+  fromDate: string;
+
+  @ApiProperty({
+    description: 'End date and time of the event (ISO 8601 format)',
+    example: '2020-02-05T09:35:22.000Z',
+    format: 'date-time', // ISO 8601 format
+  })
+  @IsOptional()
+  @IsDateString(
+    { strict: true },
+    { message: 'End date must be in ISO 8601 format' },
+  )
+  toDate: string;
 
   @ApiProperty({
     description: 'Type of the Event',
