@@ -68,8 +68,8 @@ export class Event {
   @Column({ type: 'varchar', nullable: true })
   registration_url?: string;
 
-  @Column('simple-json')
-  offerings: string[]; // Example: ["Stickers", "Career Talk", "Food"]
+  @Column({ type: 'text' })
+  about_event: string;
 
   @OneToMany(() => File, (file) => file.event, {
     cascade: true,

@@ -204,9 +204,10 @@ export class CreateEventDto {
   // Offerings: List of what is included (e.g., materials, refreshments)
   @ApiProperty({
     description: 'List of Offerings',
-    example: ['Conference Room', 'Banquet Hall', 'Snacks'],
+    example:
+      '<h1>We are goign to party.</h1></br><b>Conference Room, Banquet Hall, Snacks</b>',
   })
-  @IsString({ each: true })
+  @IsString()
   @IsNotEmpty()
-  offerings: string[];
+  about_event: string;
 }
