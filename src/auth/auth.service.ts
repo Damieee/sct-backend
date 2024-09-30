@@ -88,6 +88,8 @@ export class AuthService {
           'newsArticles',
           'reviews',
           'avatar',
+          'likedEvents',
+          'bookmarkedEvents',
         ],
       });
 
