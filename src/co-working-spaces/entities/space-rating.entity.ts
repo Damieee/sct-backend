@@ -28,7 +28,7 @@ export class SpaceRating {
   rating: number; // between 1-5
 
   @Column()
-  userId: string; // Nullable because some users might not be signed up
+  userId: string;
 
   @CreateDateColumn()
   createdAt: Date;
