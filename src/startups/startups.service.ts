@@ -171,7 +171,7 @@ export class StartupsService {
     }
   }
 
-  async getSpaceRatingAndReviews(startupId: string) {
+  async getStartupRatingAndReviews(startupId: string) {
     try {
       const ratings = await this.ratingRepository.find({
         where: { startup: { id: startupId } },

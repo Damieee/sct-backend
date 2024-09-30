@@ -28,6 +28,9 @@ export class OrganizationRating {
   rating: number; // between 1-5
 
   @Column()
+  review: string;
+
+  @Column()
   userId: string;
 
   @CreateDateColumn()

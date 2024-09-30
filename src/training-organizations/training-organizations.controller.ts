@@ -153,6 +153,23 @@ export class TrainingOrganizationsController {
       return new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  @Get(':id/ratings')
+  @ApiOperation({ summary: 'Get Training Organization Ratings and Reviews' })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Training Organization ratings and reviews have been successfully retrieved.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async getOrganizationRatingsAndReviews(
+    @Param('id') trainingOrganizationId: string,
+  ) {
+    return await this.trainingOrganizationsService.getOrganizationRatingAndReviews(
+      trainingOrganizationId,
+    );
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Post('/pictures/:id')
   @ApiBearerAuth('JWT')

@@ -141,7 +141,7 @@ export class StartupsController {
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async getStartupRatingsAndReviews(@Param('id') startupId: string) {
-    return await this.startupsService.getSpaceRatingAndReviews(startupId);
+    return await this.startupsService.getStartupRatingAndReviews(startupId);
   }
 
   @UseGuards(AuthGuard('jwt'))

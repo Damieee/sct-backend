@@ -154,7 +154,7 @@ export class TrainingOrganizationsService {
     user: User,
   ) {
     try {
-      const { rating } = rateTrainingOrganizationDto;
+      const { rating, review } = rateTrainingOrganizationDto;
       const userId = user.id;
 
       if (rating < 1 || rating > 5) {
@@ -183,6 +183,7 @@ export class TrainingOrganizationsService {
       const newRating = this.ratingRepository.create({
         trainingorganization: trainingOrg,
         rating,
+        review,
         userId,
       });
 
@@ -199,6 +200,26 @@ export class TrainingOrganizationsService {
       return trainingOrg;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getOrganizationRatingAndReviews(trainingOrganizationId: string) {
+    try {
+      const ratings = await this.ratingRepository.find({
+        where: { trainingorganization: { id: trainingOrganizationId } },
+        relations: ['trainingorganization'],
+      });
+
+      const averageRating =
+        ratings.reduce((sum, rating) => sum + rating.rating, 0) /
+        ratings.length;
+
+      return {
+        ratings,
+        averageRating: isNaN(averageRating) ? 0 : averageRating,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
