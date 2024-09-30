@@ -6,7 +6,6 @@ import { TrainingOrganizationsModule } from './training-organizations/training-o
 import { CoWorkingSpacesModule } from './co-working-spaces/co-working-spaces.module';
 import { StartupsModule } from './startups/startups.module';
 import { NewsArticlesModule } from './news-articles/news-articles.module';
-import { ReviewsModule } from './reviews/reviews.module';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -54,7 +53,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     CoWorkingSpacesModule,
     StartupsModule,
     NewsArticlesModule,
-    ReviewsModule,
     AuthModule,
     FilesModule,
   ],

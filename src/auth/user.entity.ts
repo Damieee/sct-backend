@@ -11,7 +11,6 @@ import { TrainingOrganization } from '../training-organizations/entities/trainin
 import { CoWorkingSpace } from '../co-working-spaces/entities/co-working-space.entity';
 import { Startup } from '../startups/entities/startup.entity';
 import { NewsArticle } from '../news-articles/entities/news-article.entity';
-import { Review } from '../reviews/entities/review.entity';
 import { File } from 'src/files/entities/file.entity';
 import { Exclude } from 'class-transformer';
 import { EventLike } from 'src/events/entities/event-likes.entity';
@@ -50,9 +49,6 @@ export class User {
 
   @OneToMany(() => NewsArticle, (newsArticle) => newsArticle.user)
   newsArticles: NewsArticle[];
-
-  @OneToMany(() => Review, (review) => review.user)
-  reviews: Review[];
 
   @OneToMany(() => EventLike, (eventLike) => eventLike.user)
   likedEvents: EventLike[];
