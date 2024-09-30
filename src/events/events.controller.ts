@@ -148,4 +148,69 @@ export class EventsController {
   deleteEvent(@Param('id') id: string, @GetUser() user: User): Promise<string> {
     return this.eventsService.deleteEvent(id, user);
   }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':eventId/like')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Like Event' })
+  @ApiResponse({
+    status: 200,
+    description: 'Event liked successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'Event not found.' })
+  @ApiResponse({ status: 403, description: 'Unauthorized to like event.' })
+  async likeEvent(@Param('eventId') eventId: string, @GetUser() user: User) {
+    return this.eventsService.likeEvent(eventId, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':eventId/unlike')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Unlike Event' })
+  @ApiResponse({
+    status: 200,
+    description: 'Event unliked successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'Event not found.' })
+  @ApiResponse({ status: 403, description: 'Unauthorized to unlike event.' })
+  async unlikeEvent(@Param('eventId') eventId: string, @GetUser() user: User) {
+    return this.eventsService.unlikeEvent(eventId, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post(':eventId/bookmark')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Bookmark Event' })
+  @ApiResponse({
+    status: 200,
+    description: 'Event bookmarked successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'Event not found.' })
+  @ApiResponse({ status: 403, description: 'Unauthorized to bookmark event.' })
+  async bookmarkEvent(
+    @Param('eventId') eventId: string,
+    @GetUser() user: User,
+  ) {
+    return this.eventsService.bookmarkEvent(eventId, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Delete(':eventId/unbookmark')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Unbookmark Event' })
+  @ApiResponse({
+    status: 200,
+    description: 'Event unbookmarked successfully.',
+  })
+  @ApiResponse({ status: 404, description: 'Event not found.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Unauthorized to unbookmark event.',
+  })
+  async unbookmarkEvent(
+    @Param('eventId') eventId: string,
+    @GetUser() user: User,
+  ) {
+    return this.eventsService.unbookmarkEvent(eventId, user);
+  }
 }
