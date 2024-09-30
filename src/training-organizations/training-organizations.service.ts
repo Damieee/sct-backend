@@ -19,9 +19,9 @@ import { FilesService } from 'src/files/files.service';
 export class TrainingOrganizationsService {
   constructor(
     @InjectRepository(TrainingOrganizationRepository)
+    private trainingOrganizationRepository: TrainingOrganizationRepository,
     @InjectRepository(RatingRepository)
     private ratingRepository: RatingRepository,
-    private trainingOrganizationRepository: TrainingOrganizationRepository,
     private fileService: FilesService,
   ) {}
 
