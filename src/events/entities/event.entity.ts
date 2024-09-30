@@ -11,6 +11,8 @@ import { User } from '../../auth/user.entity';
 import { EventType } from '../event-type.enum';
 import { File } from 'src/files/entities/file.entity';
 import { Category } from '../category.enum';
+import { EventLike } from './event-likes.entity';
+import { EventBookmark } from './event-bookmarks.entity';
 
 @Entity()
 export class Event {
@@ -82,6 +84,12 @@ export class Event {
     onDelete: 'CASCADE',
   })
   user: User;
+
+  @OneToMany(() => EventLike, (eventLike) => eventLike.event)
+  likes: EventLike[];
+
+  @OneToMany(() => EventBookmark, (eventBookmark) => eventBookmark.event)
+  bookmarks: EventBookmark[];
 
   @CreateDateColumn()
   created_at: Date;
