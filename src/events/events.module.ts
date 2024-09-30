@@ -7,10 +7,24 @@ import { AuthModule } from 'src/auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { FilesService } from 'src/files/files.service';
 import { FileRepository } from 'src/files/files.repository';
+import { EventBookmarkRepository } from './event-bookmark.repository';
+import { EventLikeRepository } from './event-like.repository';
+import { EventLike } from './entities/event-likes.entity';
+import { EventBookmark } from './entities/event-bookmarks.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Event]), AuthModule],
+  imports: [
+    TypeOrmModule.forFeature([Event, EventLike, EventBookmark]),
+    AuthModule,
+  ],
   controllers: [EventsController],
-  providers: [EventsService, EventRepository, FilesService, FileRepository],
+  providers: [
+    EventsService,
+    EventRepository,
+    FilesService,
+    FileRepository,
+    EventBookmarkRepository,
+    EventLikeRepository,
+  ],
 })
 export class EventsModule {}
