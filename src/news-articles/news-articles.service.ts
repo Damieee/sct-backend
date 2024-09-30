@@ -44,7 +44,7 @@ export class NewsArticlesService {
 
   async getNewsArticles(newsarticlefilter: filterDto): Promise<NewsArticle[]> {
     try {
-      const { search } = newsarticlefilter;
+      const { search, category } = newsarticlefilter;
       const query =
         this.newsArticleRepository.createQueryBuilder('newsarticle');
 
@@ -54,8 +54,14 @@ export class NewsArticlesService {
         .leftJoinAndSelect('newsarticle.user', 'user');
       if (search) {
         query.andWhere(
-          '(LOWER(newsarticle.title) LIKE LOWER(:search) OR LOWER(newsarticle.category::text) LIKE LOWER(:search) OR LOWER(newsarticle.content) LIKE LOWER(:search))',
+          '(LOWER(newsarticle.title) LIKE LOWER(:search) OR LOWER(newsarticle.content) LIKE LOWER(:search))',
           { search: `%${search}%` },
+        );
+      }
+      if (category) {
+        query.andWhere(
+          '(LOWER(newsarticle.category::text) LIKE LOWER(:category))',
+          { category: `%${category}%` },
         );
       }
 
