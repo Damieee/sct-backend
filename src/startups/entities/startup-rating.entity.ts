@@ -21,7 +21,10 @@ export class StartupRating {
   startup: Startup;
 
   @Column({ type: 'int' })
-  rating: number; // between 1-5
+  rating: number;
+
+  @Column()
+  review: string;
 
   @Column()
   userId: string;

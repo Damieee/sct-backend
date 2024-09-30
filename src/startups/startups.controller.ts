@@ -132,6 +132,18 @@ export class StartupsController {
     }
   }
 
+  @Get(':id/ratings')
+  @ApiOperation({ summary: 'Get Startup Ratings and Reviews' })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Startup ratings and reviews have been successfully retrieved.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async getStartupRatingsAndReviews(@Param('id') startupId: string) {
+    return await this.startupsService.getSpaceRatingAndReviews(startupId);
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Post('/pictures/:id')
   @ApiBearerAuth('JWT')

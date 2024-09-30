@@ -125,7 +125,7 @@ export class StartupsService {
     user: User,
   ) {
     try {
-      const { rating } = rateStartupDto;
+      const { rating, review } = rateStartupDto;
       const userId = user.id;
 
       if (rating < 1 || rating > 5) {
@@ -152,6 +152,7 @@ export class StartupsService {
       const newRating = this.ratingRepository.create({
         startup,
         rating,
+        review,
         userId,
       });
 
@@ -169,6 +170,27 @@ export class StartupsService {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
+
+  async getSpaceRatingAndReviews(startupId: string) {
+    try {
+      const ratings = await this.ratingRepository.find({
+        where: { startup: { id: startupId } },
+        relations: ['startup'],
+      });
+
+      const averageRating =
+        ratings.reduce((sum, rating) => sum + rating.rating, 0) /
+        ratings.length;
+
+      return {
+        ratings,
+        averageRating: isNaN(averageRating) ? 0 : averageRating,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async addPictures(
     id: string,
     files: Express.Multer.File[], // accept multiple files
