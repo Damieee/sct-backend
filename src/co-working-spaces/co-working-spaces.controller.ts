@@ -30,7 +30,6 @@ import { filterDto } from './dto/get-co-working-space.dto';
 import { CoWorkingSpace } from './entities/co-working-space.entity';
 import { User } from 'src/auth/user.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
 
 @ApiTags('co-working-spaces')
@@ -197,5 +196,19 @@ export class CoWorkingSpacesController {
     } catch (error) {
       return new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
+  }
+
+  @Get(':id/ratings')
+  @ApiOperation({ summary: 'Get Co-WorkSpace Ratings and Reviews' })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Co-WorkSpace ratings and reviews have been successfully retrieved.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  async getSpaceRatingsAndReviews(@Param('id') coworkingSpaceId: string) {
+    return await this.coWorkingSpacesService.getSpaceRatingAndReviews(
+      coworkingSpaceId,
+    );
   }
 }

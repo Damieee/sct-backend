@@ -1,4 +1,12 @@
-import { IsInt, Min, Max, IsNumber, IsNotEmpty } from 'class-validator';
+import {
+  IsInt,
+  Min,
+  Max,
+  IsNumber,
+  IsNotEmpty,
+  IsString,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RateCoworkingSpaceDto {
@@ -9,4 +17,12 @@ export class RateCoworkingSpaceDto {
   @Min(1)
   @Max(5)
   rating: number = 0; // Ensures rating is between 1-5
+
+  @ApiProperty({
+    description: 'Review of the coworking space',
+    example: 'I enjoyed using this co-workspace',
+  })
+  @IsString()
+  @IsOptional()
+  review: string;
 }

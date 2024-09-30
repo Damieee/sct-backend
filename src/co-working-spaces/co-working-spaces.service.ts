@@ -231,7 +231,7 @@ export class CoWorkingSpacesService {
     user: User,
   ) {
     try {
-      const { rating } = rateCoworkingSpaceDto;
+      const { rating, review } = rateCoworkingSpaceDto;
       const userId = user.id;
 
       if (rating < 1 || rating > 5) {
@@ -258,6 +258,7 @@ export class CoWorkingSpacesService {
       const newRating = this.ratingRepository.create({
         coworkingSpace,
         rating,
+        review,
         userId,
       });
 
@@ -274,6 +275,26 @@ export class CoWorkingSpacesService {
       return coworkingSpace;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getSpaceRatingAndReviews(coworkingSpaceId: string) {
+    try {
+      const ratings = await this.ratingRepository.find({
+        where: { coworkingSpace: { id: coworkingSpaceId } },
+        relations: ['coworkingSpace'],
+      });
+
+      const averageRating =
+        ratings.reduce((sum, rating) => sum + rating.rating, 0) /
+        ratings.length;
+
+      return {
+        ratings,
+        averageRating: isNaN(averageRating) ? 0 : averageRating,
+      };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }
