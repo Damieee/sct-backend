@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -12,12 +13,18 @@ import { Event } from './entities/event.entity';
 import { User } from 'src/auth/user.entity';
 import { filterDto } from './dto/get-events.dto';
 import { FilesService } from 'src/files/files.service';
+import { EventLikeRepository } from './event-like.repository';
+import { EventBookmarkRepository } from './event-bookmark.repository';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(EventRepository)
     private eventRepository: EventRepository,
+    @InjectRepository(EventLikeRepository)
+    private eventLikeRepository: EventLikeRepository,
+    @InjectRepository(EventBookmarkRepository)
+    private eventBookmarkRepository: EventBookmarkRepository,
     private fileService: FilesService,
   ) {}
 
@@ -251,5 +258,114 @@ export class EventsService {
     await this.fileService.deletePublicFile(picture.id);
 
     return { message: 'Picture deleted successfully' };
+  }
+
+  async likeEvent(eventId: string, user: User) {
+    try {
+      const event = await this.eventRepository.findOne({
+        where: { id: eventId },
+      });
+      if (!event) {
+        throw new NotFoundException(`Event with ID ${eventId} not found`);
+      }
+      if (!user) {
+        throw new NotFoundException(`User with ID ${user.id} not found`);
+      }
+      // Check if user has already rated the coworking space
+      const existingLike = await this.eventLikeRepository.findOne({
+        where: [{ event: { id: eventId }, user }],
+      });
+
+      if (existingLike) {
+        throw new Error('You have already liked this event.');
+      }
+      const like = this.eventLikeRepository.create({
+        event: event,
+        user,
+      });
+
+      await this.eventLikeRepository.save(like);
+
+      return like;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async unlikeEvent(eventId: string, user: User) {
+    try {
+      const likedEvent = await this.eventLikeRepository.findOne({
+        where: { event: { id: eventId }, user },
+      });
+
+      if (!likedEvent) {
+        throw new NotFoundException('Event not found or not liked');
+      }
+
+      await this.eventLikeRepository.delete({
+        event: { id: eventId },
+        user: { id: user.id },
+      });
+      return { message: 'Event unliked successfully', status: 'success' };
+    } catch (error) {
+      // Handle specific errors or rethrow
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error(error);
+      throw new InternalServerErrorException('Failed to unlike event');
+    }
+  }
+
+  async bookmarkEvent(eventId: string, user: User) {
+    try {
+      const event = await this.eventRepository.findOne({
+        where: { id: eventId },
+      });
+      if (!event) {
+        throw new NotFoundException(`Event with ID ${eventId} not found`);
+      }
+      if (!user) {
+        throw new NotFoundException(`User with ID ${user.id} not found`);
+      }
+      // Check if user has already bookmarked the event
+      const existingBookmark = await this.eventBookmarkRepository.findOne({
+        where: [{ event: { id: eventId }, user }],
+      });
+      if (existingBookmark) {
+        throw new Error('You have already bookmarked this event.');
+      }
+      const bookmark = this.eventBookmarkRepository.create({
+        event: event,
+        user,
+      });
+      await this.eventBookmarkRepository.save(bookmark);
+      return bookmark;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async unbookmarkEvent(eventId: string, user: User) {
+    try {
+      const bookmarkedEvent = await this.eventBookmarkRepository.findOne({
+        where: { event: { id: eventId }, user },
+      });
+      if (!bookmarkedEvent) {
+        throw new NotFoundException('Event not found or not bookmarked');
+      }
+      await this.eventBookmarkRepository.delete({
+        event: { id: eventId },
+        user: { id: user.id },
+      });
+      return { message: 'Event un-bookmarked successfully', status: 'success' };
+    } catch (error) {
+      // Handle specific errors or rethrow
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      console.error(error);
+      throw new InternalServerErrorException('Failed to unbookmark event');
+    }
   }
 }
