@@ -10,6 +10,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FilesService } from 'src/files/files.service';
 import { FileRepository } from 'src/files/files.repository';
+import { EventLikeRepository } from 'src/events/event-like.repository';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { FileRepository } from 'src/files/files.repository';
   providers: [
     AuthService,
     UsersRepository,
+    EventLikeRepository,
     JwtStrategy,
     FilesService,
     FileRepository,
