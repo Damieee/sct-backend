@@ -14,6 +14,8 @@ import { NewsArticle } from '../news-articles/entities/news-article.entity';
 import { Review } from '../reviews/entities/review.entity';
 import { File } from 'src/files/entities/file.entity';
 import { Exclude } from 'class-transformer';
+import { EventLike } from 'src/events/entities/event-likes.entity';
+import { EventBookmark } from 'src/events/entities/event-bookmarks.entity';
 
 @Entity()
 export class User {
@@ -51,4 +53,10 @@ export class User {
 
   @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
+
+  @OneToMany(() => EventLike, (eventLike) => eventLike.user)
+  likedEvents: EventLike[];
+
+  @OneToMany(() => EventBookmark, (eventBookmark) => eventBookmark.user)
+  bookmarkedEvents: EventBookmark[];
 }
