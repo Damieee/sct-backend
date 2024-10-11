@@ -23,6 +23,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
+        POSTGRES_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.string().required(),
         AWS_REGION: Joi.string().required(),
@@ -41,6 +42,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
+          url: configService.get('POSTGRES_URL'),
           synchronize: true,
           autoLoadEntities: true,
         };
