@@ -6,7 +6,7 @@ import { User } from './user.entity';
 import { UsersRepository } from './user.repository';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './jwt.strategy';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FilesService } from 'src/files/files.service';
 import { FileRepository } from 'src/files/files.repository';
