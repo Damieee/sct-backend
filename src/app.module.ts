@@ -23,13 +23,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         POSTGRES_USER: Joi.string().required(),
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_DB: Joi.string().required(),
-        POSTGRES_URL: Joi.string().required(),
+        // POSTGRES_URL: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.string().required(),
         AWS_REGION: Joi.string().required(),
         AWS_ACCESS_KEY_ID: Joi.string().required(),
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
+        GOOGLE_CLIENT_ID: Joi.string().required(),
+        GOOGLE_CLIENT_SECRET: Joi.string().required(),
         PORT: Joi.number(),
       }),
     }),
@@ -42,7 +44,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
-          url: configService.get('POSTGRES_URL'),
+          url:
+            process.env.NODE_ENV === 'production'
+              ? configService.get('POSTGRES_URL')
+              : undefined,
           synchronize: true,
           autoLoadEntities: true,
         };
