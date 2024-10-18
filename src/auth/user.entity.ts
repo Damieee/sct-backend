@@ -16,6 +16,11 @@ import { Exclude } from 'class-transformer';
 import { EventLike } from 'src/events/entities/event-likes.entity';
 import { EventBookmark } from 'src/events/entities/event-bookmarks.entity';
 
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+}
+
 @Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
@@ -55,4 +60,11 @@ export class User {
 
   @OneToMany(() => EventBookmark, (eventBookmark) => eventBookmark.user)
   bookmarkedEvents: EventBookmark[];
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: UserRole;
 }

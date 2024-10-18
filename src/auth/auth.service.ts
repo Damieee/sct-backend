@@ -10,13 +10,14 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersRepository } from './user.repository';
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
-import { User } from './user.entity';
+import { User, UserRole } from './user.entity';
 import { v4 as uuid } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './jwt-payload.interface';
 import { FilesService } from 'src/files/files.service';
 import { SigninCredentialsDto } from './dto/signin-credentials.dto';
+import { UserDetails } from './user-details.interface';
 
 @Injectable()
 export class AuthService {
@@ -51,12 +52,22 @@ export class AuthService {
   }
 
   async signIn(
-    SignupCredentialsDto: SigninCredentialsDto,
+    role: UserRole,
+    signinCredentialsDto: SigninCredentialsDto,
   ): Promise<{ accessToken: string }> {
-    const { email, password } = SignupCredentialsDto;
+    const { email, password } = signinCredentialsDto;
     const user = await this.usersRepository.findOneBy({ email: email });
 
     if (user && (await bcrypt.compare(password, user.password))) {
+      if (user.role !== role) {
+        const roleMessage =
+          role === UserRole.ADMIN
+            ? 'only for admin'
+            : 'not authorized for this role';
+        throw new UnauthorizedException(
+          `Invalid role: This section is ${roleMessage}.`,
+        );
+      }
       const payload: JwtPayload = { email };
       const accessToken = await this.jwtService.sign(payload);
       return { accessToken };
@@ -86,7 +97,6 @@ export class AuthService {
           'coWorkingSpaces',
           'startups',
           'newsArticles',
-          'reviews',
           'avatar',
           'likedEvents',
           'bookmarkedEvents',

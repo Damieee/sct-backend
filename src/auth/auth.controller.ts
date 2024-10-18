@@ -10,6 +10,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
@@ -27,6 +28,10 @@ import { Express } from 'express';
 import { GetUser } from './get-user.decorator';
 import { SigninCredentialsDto } from './dto/signin-credentials.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from './roles.guard';
+import { Roles } from './roles.decorator';
+import { UserRole } from './user.entity';
+import { RoleValidationPipe } from './role.validation';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -45,7 +50,7 @@ export class AuthController {
     return this.authService.signUp(SignupCredentialsDto);
   }
 
-  @Post('/signin')
+  @Post('/:role/signin')
   @ApiOperation({ summary: 'Sign in an existing user' })
   @ApiResponse({
     status: 200,
@@ -54,9 +59,10 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
   @ApiBody({ type: SigninCredentialsDto })
   signIn(
-    @Body() SignupCredentialsDto: SigninCredentialsDto,
+    @Param('role', RoleValidationPipe) role: UserRole,
+    @Body() signinCredentialsDto: SigninCredentialsDto,
   ): Promise<{ accessToken: string }> {
-    return this.authService.signIn(SignupCredentialsDto);
+    return this.authService.signIn(role, signinCredentialsDto);
   }
   //   @Post('forgot-password')
   //   @HttpCode(HttpStatus.OK)
