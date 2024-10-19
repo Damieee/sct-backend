@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../auth/user.entity';
 import { File } from 'src/files/entities/file.entity';
+import { Status } from 'src/enums/status.enum';
 
 @Entity()
 export class CoWorkingSpace {
@@ -61,6 +62,16 @@ export class CoWorkingSpace {
 
   @Column()
   phone_number: string;
+
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.PENDING,
+  })
+  status: Status;
+
+  @Column({ type: 'text', nullable: true })
+  adminComment?: string;
 
   @ManyToOne(() => User, (user) => user.coWorkingSpaces, {
     eager: true,

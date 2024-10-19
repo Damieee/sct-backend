@@ -13,6 +13,7 @@ import { File } from 'src/files/entities/file.entity';
 import { Category } from '../category.enum';
 import { EventLike } from './event-likes.entity';
 import { EventBookmark } from './event-bookmarks.entity';
+import { Status } from 'src/enums/status.enum';
 
 @Entity()
 export class Event {
@@ -58,6 +59,16 @@ export class Event {
     default: Category.OTHER,
   })
   category: Category;
+
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.PENDING,
+  })
+  status: Status;
+
+  @Column({ type: 'text', nullable: true })
+  adminComment?: string;
 
   @Column('json')
   organizer: {

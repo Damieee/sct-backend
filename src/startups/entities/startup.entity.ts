@@ -10,6 +10,7 @@ import {
 import { User } from '../../auth/user.entity';
 import { Category } from '../category.enum';
 import { File } from 'src/files/entities/file.entity';
+import { Status } from 'src/enums/status.enum';
 
 @Entity()
 export class Startup {
@@ -66,6 +67,16 @@ export class Startup {
     default: Category.OTHER,
   })
   category: Category;
+
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.PENDING,
+  })
+  status: Status;
+
+  @Column({ type: 'text', nullable: true })
+  adminComment?: string;
 
   @Column()
   logo: string;

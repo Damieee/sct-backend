@@ -11,6 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 import { Category } from '../category.enum';
 import { File } from 'src/files/entities/file.entity';
+import { Status } from 'src/enums/status.enum';
 
 @Entity()
 export class NewsArticle {
@@ -28,6 +29,16 @@ export class NewsArticle {
 
   @Column({ type: 'enum', enum: Category })
   category: Category;
+
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.PENDING,
+  })
+  status: Status;
+
+  @Column({ type: 'text', nullable: true })
+  adminComment?: string;
 
   @ManyToOne(() => User, (user) => user.newsArticles, {
     eager: true,
