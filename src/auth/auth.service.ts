@@ -18,6 +18,7 @@ import { JwtPayload } from './jwt-payload.interface';
 import { FilesService } from 'src/files/files.service';
 import { SigninCredentialsDto } from './dto/signin-credentials.dto';
 import { UserDetails } from './user-details.interface';
+import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
 
 @Injectable()
 export class AuthService {
@@ -87,7 +88,7 @@ export class AuthService {
   //   }
   // }
 
-  async getUserById(user: User): Promise<User> {
+  async getUserDetails(user: User): Promise<User> {
     try {
       const user_ = await this.usersRepository.findOne({
         where: { id: user.id },
@@ -112,6 +113,23 @@ export class AuthService {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  async getUserEntityDetails(
+    user: User,
+    getUserEntityDetailsDto: GetUserEntityDetailsDto,
+  ): Promise<User> {
+    const { entityType, status } = getUserEntityDetailsDto;
+    try {
+      const relations = [entityType];
+
+      const user_ = await this.usersRepository.findOne({
+        where: { id: user.id },
+        relations: relations,
+      });
+
+      if (!user_) {
+        throw new NotFoundException(`Could not find user with ID ${user.id}`);
+      }
 
   async addAvatar(user: User, imageBuffer: Buffer, filename: string) {
     if (user.avatar) {

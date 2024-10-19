@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
   Req,
+  Query,
 } from '@nestjs/common';
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
@@ -22,6 +23,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
@@ -32,6 +34,9 @@ import { RolesGuard } from './roles.guard';
 import { Roles } from './roles.decorator';
 import { UserRole } from './user.entity';
 import { RoleValidationPipe } from './role.validation';
+import { Status } from 'src/enums/status.enum';
+import { EntityType } from './entity-type.enum';
+import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -76,7 +81,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.USER)
-  @Get('/getuser')
+  @Get('/get-user')
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get User' })
   @ApiResponse({
@@ -84,15 +89,50 @@ export class AuthController {
     description: 'User retrieved successfully.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  getNewsArticleById(@GetUser() user: User): Promise<User> {
-    return this.authService.getUserById(user);
+  async getUser(@GetUser() user: User): Promise<User> {
+    return this.authService.getUserDetails(user);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER)
+  @Get('/get-user-details/:entityType/:status')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Get User Details' })
+  @ApiResponse({
+    status: 200,
+    description: 'User details retrieved successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiQuery({
+    name: 'entityType',
+    enum: EntityType,
+    required: true,
+    description: 'The type of entity to retrieve details for.',
+  })
+  @ApiQuery({
+    name: 'status',
+    enum: Status,
+    required: true,
+    description: 'The status of the entity to retrieve details for.',
+  })
+  async getUserEntityDetails(
+    @GetUser() user: User,
+    @Query('entityType') entityType: EntityType,
+    @Query('status') status: Status,
+  ) {
+    const getUserEntityDetailsDto: GetUserEntityDetailsDto = {
+      entityType,
+      status,
+    };
+    return this.authService.getUserEntityDetails(user, getUserEntityDetailsDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER)
   @Post('avatar')
   @ApiBearerAuth('JWT')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiConsumes('multipart/form-data') // Specify file upload
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
@@ -103,7 +143,7 @@ export class AuthController {
         },
       },
     },
-  }) // Swagger body for file upload
+  })
   async addAvatar(
     @GetUser() user: User,
     @UploadedFile() file: Express.Multer.File,
@@ -117,7 +157,8 @@ export class AuthController {
     return this.authService.addAvatar(user, file.buffer, file.originalname);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER)
   @Delete('/avatar')
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Delete User Avatar' })
