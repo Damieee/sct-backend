@@ -5,6 +5,7 @@ import { config } from 'aws-sdk';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './transform.interceptor';
+import { Status } from './enums/status.enum';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,6 +23,14 @@ async function bootstrap() {
     )
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
+
+  // Add the enum schema manually
+  document.components.schemas['Status'] = {
+    type: 'string',
+    enum: Object.values(Status),
+    description: 'The status of the item',
+  };
+
   SwaggerModule.setup('api-docs', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
