@@ -15,6 +15,7 @@ import { RatingRepository } from './startup-rating.repository';
 import { RateStartupDto } from './dto/startup-rating.dto';
 import { filterDto } from './dto/get-startup.dto';
 import { FilesService } from 'src/files/files.service';
+import { Status } from 'src/enums/status.enum';
 
 @Injectable()
 export class StartupsService {
@@ -100,7 +101,7 @@ export class StartupsService {
       if (!startup) {
         throw new NotFoundException(`Could not find startup with ID ${id}`);
       }
-
+      startup.status = Status.PENDING;
       return this.startupRepository.save(startup);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
