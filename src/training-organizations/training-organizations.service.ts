@@ -15,6 +15,7 @@ import { TrainingOrganizationRepository } from './training-organizations.reposit
 import { RatingRepository } from './training-organization-rating.repository';
 import { RateTrainingOrganizationDto } from './dto/rating.dto';
 import { FilesService } from 'src/files/files.service';
+import { Status } from 'src/enums/status.enum';
 @Injectable()
 export class TrainingOrganizationsService {
   constructor(
@@ -122,7 +123,7 @@ export class TrainingOrganizationsService {
       }
 
       Object.assign(trainingOrganization, updateTrainingOrganizationDto);
-
+      trainingOrganization.status = Status.PENDING;
       await this.trainingOrganizationRepository.save(trainingOrganization);
       return trainingOrganization;
     } catch (error) {

@@ -12,6 +12,7 @@ import { User } from 'src/auth/user.entity';
 import { filterDto } from './dto/get-news-article.dto';
 import { NewsArticleRepository } from './news-article.repository';
 import { FilesService } from 'src/files/files.service';
+import { Status } from 'src/enums/status.enum';
 
 @Injectable()
 export class NewsArticlesService {
@@ -104,6 +105,7 @@ export class NewsArticlesService {
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
       }
       Object.assign(newsarticle, updateNewsArticleDto);
+      newsarticle.status = Status.PENDING;
       await this.newsArticleRepository.save(newsarticle);
       return newsarticle;
     } catch (error) {

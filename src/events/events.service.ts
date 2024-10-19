@@ -15,6 +15,7 @@ import { filterDto } from './dto/get-events.dto';
 import { FilesService } from 'src/files/files.service';
 import { EventLikeRepository } from './event-like.repository';
 import { EventBookmarkRepository } from './event-bookmark.repository';
+import { Status } from 'src/enums/status.enum';
 
 @Injectable()
 export class EventsService {
@@ -180,6 +181,8 @@ export class EventsService {
         throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
       }
       Object.assign(event, updateEventDto);
+      event.status = Status.PENDING;
+
       await this.eventRepository.save(event);
       return event;
     } catch (error) {
