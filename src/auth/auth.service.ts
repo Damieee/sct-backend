@@ -131,6 +131,20 @@ export class AuthService {
         throw new NotFoundException(`Could not find user with ID ${user.id}`);
       }
 
+      // Filter the related entities by status
+      const filteredEntities = user_[entityType].filter(
+        (entity) => entity.status === status,
+      );
+
+      // Ensure the entityType is a valid key of user_ and cast the filteredEntities to the
+      user_[entityType as keyof User] = filteredEntities as any;
+
+      return user_;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async addAvatar(user: User, imageBuffer: Buffer, filename: string) {
     if (user.avatar) {
       await this.usersRepository.update(user.id, {
