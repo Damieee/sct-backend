@@ -16,6 +16,7 @@ import { filterDto } from './dto/get-co-working-space.dto';
 import { FilesService } from 'src/files/files.service';
 import { RatingRepository } from './space-rating.repository';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
+import { Status } from 'src/enums/status.enum';
 
 @Injectable()
 export class CoWorkingSpacesService {
@@ -134,6 +135,7 @@ export class CoWorkingSpacesService {
     if (updateCoworkingSpaceDto.phone_number) {
       coworkingspace.phone_number = updateCoworkingSpaceDto.phone_number;
     }
+    coworkingspace.status = Status.PENDING;
 
     // Save the updated coworking space
     await this.coworkingspaceRepository.save(coworkingspace);
