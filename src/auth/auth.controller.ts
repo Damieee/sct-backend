@@ -5,13 +5,13 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
   UploadedFile,
   UseGuards,
   UseInterceptors,
   Req,
   Query,
+  Param,
 } from '@nestjs/common';
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
@@ -24,6 +24,7 @@ import {
   ApiConsumes,
   ApiBearerAuth,
   ApiQuery,
+  ApiParam,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
@@ -41,7 +42,7 @@ import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('/signup')
   @ApiOperation({ summary: 'Sign up a new user' })
@@ -62,6 +63,12 @@ export class AuthController {
     description: 'User has been successfully signed in.',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiParam({
+    name: 'role',
+    enum: UserRole,
+    required: true,
+    description: 'The role of the user to sign in.',
+  })
   @ApiBody({ type: SigninCredentialsDto })
   signIn(
     @Param('role', RoleValidationPipe) role: UserRole,
@@ -81,7 +88,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.USER)
-  @Get('/get-user')
+  @Get('/get-user-details')
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get User' })
   @ApiResponse({
@@ -95,7 +102,7 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.USER)
-  @Get('/get-user-details/:entityType/:status')
+  @Get('/entities/:entityType/:status')
   @ApiBearerAuth('JWT')
   @ApiOperation({ summary: 'Get User Details' })
   @ApiResponse({
@@ -125,6 +132,47 @@ export class AuthController {
       status,
     };
     return this.authService.getUserEntityDetails(user, getUserEntityDetailsDto);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Get('/admin/entities/:entityType/:status')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Get entity details by type and status' })
+  @ApiResponse({
+    status: 200,
+    description: 'Entity details retrieved successfully.',
+    type: User,
+  })
+  @ApiResponse({ status: 404, description: 'Entity not found.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
+  @ApiQuery({
+    enum: EntityType,
+    name: 'entityType',
+    required: true,
+    description: 'Type of the entity to retrieve',
+  })
+  @ApiQuery({
+    enum: Status,
+    name: 'status',
+    required: true,
+    description: 'Status of the entity to filter by',
+  })
+  async fetchAllUserEntities(
+    @Query('entityType') entityType: EntityType,
+    @Query('status') status: Status,
+  ): Promise<User[]> {
+    try {
+      const getUserEntityDetailsDto: GetUserEntityDetailsDto = {
+        entityType,
+        status,
+      };
+      return await this.authService.getEntityDetailsForAdmin(
+        getUserEntityDetailsDto,
+      );
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)

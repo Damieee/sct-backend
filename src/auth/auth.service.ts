@@ -145,6 +145,41 @@ export class AuthService {
     }
   }
 
+  async getEntityDetailsForAdmin(
+    getUserEntityDetailsDto: GetUserEntityDetailsDto,
+  ): Promise<User[]> {
+    // Return an array of Users
+    const { entityType, status } = getUserEntityDetailsDto;
+    try {
+      const relations = [entityType];
+
+      const posts = await this.usersRepository.find({
+        relations: relations,
+      });
+
+      if (!posts || posts.length === 0) {
+        throw new NotFoundException(
+          `Could not find any posts for ${relations}`,
+        );
+      }
+
+      // Filter the related entities by status
+      const filteredPosts = posts
+        .map((post) => {
+          const filteredEntities = post[entityType].filter(
+            (entity) => entity.status === status,
+          );
+          post[entityType as keyof User] = filteredEntities as any;
+          return post;
+        })
+        .filter((post) => post[entityType].length > 0); // Ensure only posts with matching entities are returned
+
+      return filteredPosts;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   async addAvatar(user: User, imageBuffer: Buffer, filename: string) {
     if (user.avatar) {
       await this.usersRepository.update(user.id, {
