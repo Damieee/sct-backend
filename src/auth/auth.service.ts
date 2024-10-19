@@ -87,10 +87,10 @@ export class AuthService {
   //   }
   // }
 
-  async getUserById(id: string): Promise<User> {
+  async getUserById(user: User): Promise<User> {
     try {
-      const user = await this.usersRepository.findOne({
-        where: { id },
+      const user_ = await this.usersRepository.findOne({
+        where: { id: user.id },
         relations: [
           'events',
           'trainingOrganizations',
@@ -103,11 +103,11 @@ export class AuthService {
         ],
       });
 
-      if (!user) {
-        throw new NotFoundException(`Could not find user with ID ${id}`);
+      if (!user_) {
+        throw new NotFoundException(`Could not find user with ID ${user_.id}`);
       }
 
-      return user;
+      return user_;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -74,15 +74,18 @@ export class AuthController {
   //     return this.authService.forgotPassword(forgotPasswordDto);
   //   }
 
-  @Get('/:id')
-  @ApiOperation({ summary: 'Get User By ID' })
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER)
+  @Get('/getuser')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Get User' })
   @ApiResponse({
     status: 200,
     description: 'User retrieved successfully.',
   })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
-  getNewsArticleById(@Param('id') id: string): Promise<User> {
-    return this.authService.getUserById(id);
+  getNewsArticleById(@GetUser() user: User): Promise<User> {
+    return this.authService.getUserById(user);
   }
 
   @UseGuards(AuthGuard('jwt'))
