@@ -25,9 +25,12 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Event } from './entities/event.entity';
-import { User } from 'src/auth/user.entity';
+import { User, UserRole } from 'src/auth/user.entity';
 import { filterDto } from './dto/get-events.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { AdminUpdateEventDto } from './dto/admin-update-event.dto';
 
 @ApiTags('events')
 @Controller('events')
@@ -212,5 +215,23 @@ export class EventsController {
     @GetUser() user: User,
   ) {
     return this.eventsService.unbookmarkEvent(eventId, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Patch('/admin/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Admin Update Event By ID' })
+  @ApiResponse({
+    status: 201,
+    description: 'Event has been successfully updated by admin.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: AdminUpdateEventDto })
+  async adminUpdateEvent(
+    @Param('id') id: string,
+    @Body() adminUpdateDto: AdminUpdateEventDto,
+  ): Promise<Event> {
+    return this.eventsService.adminUpdateEvent(id, adminUpdateDto);
   }
 }

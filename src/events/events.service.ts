@@ -4,6 +4,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -16,6 +17,7 @@ import { FilesService } from 'src/files/files.service';
 import { EventLikeRepository } from './event-like.repository';
 import { EventBookmarkRepository } from './event-bookmark.repository';
 import { Status } from 'src/enums/status.enum';
+import { AdminUpdateEventDto } from './dto/admin-update-event.dto';
 
 @Injectable()
 export class EventsService {
@@ -370,5 +372,28 @@ export class EventsService {
       console.error(error);
       throw new InternalServerErrorException('Failed to unbookmark event');
     }
+  }
+
+  async adminUpdateEvent(
+    id: string,
+    adminUpdateDto: AdminUpdateEventDto,
+  ): Promise<Event> {
+    const event = await this.getEventById(id);
+    if (!event) {
+      throw new NotFoundException(`Could not find event with id: ${id}`);
+    }
+    const { status, adminComment } = adminUpdateDto;
+
+    if (status === Status.NOT_ACCEPTED && !adminComment) {
+      throw new BadRequestException('A comment is required when rejecting.');
+    }
+
+    event.status = status;
+    if (adminComment) {
+      event.adminComment = adminComment;
+    }
+
+    await this.eventRepository.save(event);
+    return event;
   }
 }
