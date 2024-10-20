@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateNewsArticleDto } from './dto/create-news-article.dto';
@@ -13,6 +14,7 @@ import { filterDto } from './dto/get-news-article.dto';
 import { NewsArticleRepository } from './news-article.repository';
 import { FilesService } from 'src/files/files.service';
 import { Status } from 'src/enums/status.enum';
+import { AdminUpdateNewsArticleDto } from './dto/admin-update-news-article.dto';
 
 @Injectable()
 export class NewsArticlesService {
@@ -182,5 +184,28 @@ export class NewsArticlesService {
     await this.fileService.deletePublicFile(picture.id);
 
     return { message: 'Picture deleted successfully' };
+  }
+
+  async adminUpdateNewsArticle(
+    id: string,
+    adminUpdateDto: AdminUpdateNewsArticleDto,
+  ): Promise<NewsArticle> {
+    const newsArticle = await this.getNewsArticleById(id);
+    if (!newsArticle) {
+      throw new NotFoundException(`Could not find news article with id: ${id}`);
+    }
+    const { status, adminComment } = adminUpdateDto;
+
+    if (status === Status.NOT_ACCEPTED && !adminComment) {
+      throw new BadRequestException('A comment is required when rejecting.');
+    }
+
+    newsArticle.status = status;
+    if (adminComment) {
+      newsArticle.adminComment = adminComment;
+    }
+
+    await this.newsArticleRepository.save(newsArticle);
+    return newsArticle;
   }
 }

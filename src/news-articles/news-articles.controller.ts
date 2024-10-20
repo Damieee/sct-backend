@@ -28,6 +28,10 @@ import { NewsArticle } from './entities/news-article.entity';
 import { User } from 'src/auth/user.entity';
 import { filterDto } from './dto/get-news-article.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { Roles } from 'src/auth/roles.decorator';
+import { UserRole } from 'src/auth/user.entity';
+import { AdminUpdateNewsArticleDto } from './dto/admin-update-news-article.dto';
 
 @ApiTags('news-articles')
 @Controller('news-articles')
@@ -159,5 +163,23 @@ export class NewsArticlesController {
     @GetUser() user: User,
   ) {
     return this.newsArticlesService.deletePicture(newsArticleId, fileId, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Patch('/admin/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Admin Update News Article By ID' })
+  @ApiResponse({
+    status: 201,
+    description: 'News Article has been successfully updated by admin.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: AdminUpdateNewsArticleDto })
+  async adminUpdateNewsArticle(
+    @Param('id') id: string,
+    @Body() adminUpdateDto: AdminUpdateNewsArticleDto,
+  ): Promise<NewsArticle> {
+    return this.newsArticlesService.adminUpdateNewsArticle(id, adminUpdateDto);
   }
 }
