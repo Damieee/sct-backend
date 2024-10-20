@@ -16,6 +16,7 @@ import { RateStartupDto } from './dto/startup-rating.dto';
 import { filterDto } from './dto/get-startup.dto';
 import { FilesService } from 'src/files/files.service';
 import { Status } from 'src/enums/status.enum';
+import { AdminUpdateStartupDto } from './dto/admin-update-startup.dto';
 
 @Injectable()
 export class StartupsService {
@@ -248,5 +249,28 @@ export class StartupsService {
     await this.fileService.deletePublicFile(picture.id);
 
     return { message: 'Picture deleted successfully' };
+  }
+
+  async adminUpdateStartup(
+    id: string,
+    adminUpdateDto: AdminUpdateStartupDto,
+  ): Promise<Startup> {
+    const startup = await this.getStartupById(id);
+    if (!startup) {
+      throw new NotFoundException(`Could not find startup with id: ${id}`);
+    }
+    const { status, adminComment } = adminUpdateDto;
+
+    if (status === Status.NOT_ACCEPTED && !adminComment) {
+      throw new BadRequestException('A comment is required when rejecting.');
+    }
+
+    startup.status = status;
+    if (adminComment) {
+      startup.adminComment = adminComment;
+    }
+
+    await this.startupRepository.save(startup);
+    return startup;
   }
 }

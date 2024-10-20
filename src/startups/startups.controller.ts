@@ -31,6 +31,10 @@ import { User } from 'src/auth/user.entity';
 import { RateStartupDto } from './dto/startup-rating.dto';
 import { filterDto } from './dto/get-startup.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { UserRole } from 'src/auth/user.entity';
+import { AdminUpdateStartupDto } from './dto/admin-update-startup.dto';
+import { Roles } from 'src/auth/roles.decorator';
 
 @ApiTags('startups')
 @Controller('startups')
@@ -187,5 +191,23 @@ export class StartupsController {
     @GetUser() user: User,
   ) {
     return this.startupsService.deletePicture(startupId, fileId, user);
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Patch('/admin/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Admin Update Startup By ID' })
+  @ApiResponse({
+    status: 201,
+    description: 'Startup has been successfully updated by admin.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: AdminUpdateStartupDto })
+  async adminUpdateStartup(
+    @Param('id') id: string,
+    @Body() adminUpdateDto: AdminUpdateStartupDto,
+  ): Promise<Startup> {
+    return this.startupsService.adminUpdateStartup(id, adminUpdateDto);
   }
 }
