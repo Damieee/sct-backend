@@ -16,6 +16,8 @@ import { RatingRepository } from './training-organization-rating.repository';
 import { RateTrainingOrganizationDto } from './dto/rating.dto';
 import { FilesService } from 'src/files/files.service';
 import { Status } from 'src/enums/status.enum';
+import { AdminUpdateTrainingOrganizationDto } from './dto/admin-update-training-organization.dto';
+
 @Injectable()
 export class TrainingOrganizationsService {
   constructor(
@@ -297,5 +299,30 @@ export class TrainingOrganizationsService {
     await this.fileService.deletePublicFile(picture.id);
 
     return { message: 'Picture deleted successfully' };
+  }
+
+  async adminUpdateTrainingOrganization(
+    id: string,
+    adminUpdateDto: AdminUpdateTrainingOrganizationDto,
+  ): Promise<TrainingOrganization> {
+    const trainingOrganization = await this.getTrainingOrganizationById(id);
+    if (!trainingOrganization) {
+      throw new NotFoundException(
+        `Could not find training organization with id: ${id}`,
+      );
+    }
+    const { status, adminComment } = adminUpdateDto;
+
+    if (status === Status.NOT_ACCEPTED && !adminComment) {
+      throw new BadRequestException('A comment is required when rejecting.');
+    }
+
+    trainingOrganization.status = status;
+    if (adminComment) {
+      trainingOrganization.adminComment = adminComment;
+    }
+
+    await this.trainingOrganizationRepository.save(trainingOrganization);
+    return trainingOrganization;
   }
 }

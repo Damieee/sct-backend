@@ -31,6 +31,10 @@ import { TrainingOrganization } from './entities/training-organization.entity';
 import { User } from 'src/auth/user.entity';
 import { RateTrainingOrganizationDto } from './dto/rating.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { RolesGuard } from 'src/auth/roles.guard';
+import { UserRole } from 'src/auth/user.entity';
+import { AdminUpdateTrainingOrganizationDto } from './dto/admin-update-training-organization.dto';
+import { Roles } from 'src/auth/roles.decorator';
 
 @ApiTags('training-organizations')
 @Controller('training-organizations')
@@ -216,6 +220,28 @@ export class TrainingOrganizationsController {
       trainingOrganizationId,
       fileId,
       user,
+    );
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Patch('/admin/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Admin Update Training Organization By ID' })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Training Organization has been successfully updated by admin.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: AdminUpdateTrainingOrganizationDto })
+  async adminUpdateTrainingOrganization(
+    @Param('id') id: string,
+    @Body() adminUpdateDto: AdminUpdateTrainingOrganizationDto,
+  ): Promise<TrainingOrganization> {
+    return this.trainingOrganizationsService.adminUpdateTrainingOrganization(
+      id,
+      adminUpdateDto,
     );
   }
 }
