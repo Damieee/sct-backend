@@ -17,6 +17,7 @@ import { FilesService } from 'src/files/files.service';
 import { RatingRepository } from './space-rating.repository';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
 import { Status } from 'src/enums/status.enum';
+import { AdminUpdateCoWorkingSpaceDto } from './dto/admin-update-co-working-space.dto';
 
 @Injectable()
 export class CoWorkingSpacesService {
@@ -136,6 +137,37 @@ export class CoWorkingSpacesService {
       coworkingspace.phone_number = updateCoworkingSpaceDto.phone_number;
     }
     coworkingspace.status = Status.PENDING;
+
+    // Save the updated coworking space
+    await this.coworkingspaceRepository.save(coworkingspace);
+
+    // Return the updated coworking space
+    return coworkingspace;
+  }
+
+  async adminUpdateCoworkingSpace(
+    id: string,
+    adminUpdateDto: AdminUpdateCoWorkingSpaceDto,
+  ): Promise<CoWorkingSpace> {
+    // Retrieve the coworking space by ID
+    const coworkingspace = await this.getcoWorkingSpaceById(id);
+    if (!coworkingspace) {
+      throw new NotFoundException(
+        `Could not find coworking space with id: ${id}`,
+      );
+    }
+    const { status, adminComment } = adminUpdateDto;
+
+    // Check if the status is REJECTED and a comment is provided
+    if (status === Status.NOT_ACCEPTED && !adminComment) {
+      throw new BadRequestException('A comment is required when rejecting.');
+    }
+
+    // Update the status and optionally add a comment
+    coworkingspace.status = status;
+    if (adminComment) {
+      coworkingspace.adminComment = adminComment; // Assuming there's a field for admin comments
+    }
 
     // Save the updated coworking space
     await this.coworkingspaceRepository.save(coworkingspace);

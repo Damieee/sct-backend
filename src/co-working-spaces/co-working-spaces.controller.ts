@@ -28,9 +28,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { filterDto } from './dto/get-co-working-space.dto';
 import { CoWorkingSpace } from './entities/co-working-space.entity';
-import { User } from 'src/auth/user.entity';
+import { User, UserRole } from 'src/auth/user.entity';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
+import { AdminUpdateCoWorkingSpaceDto } from './dto/admin-update-co-working-space.dto';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.guard';
 
 @ApiTags('co-working-spaces')
 @Controller('co-working-spaces')
@@ -209,6 +212,27 @@ export class CoWorkingSpacesController {
   async getSpaceRatingsAndReviews(@Param('id') coworkingSpaceId: string) {
     return await this.coWorkingSpacesService.getSpaceRatingAndReviews(
       coworkingSpaceId,
+    );
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER)
+  @Patch('/admin/:id')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Admin Update Co-WorkSpace By ID' })
+  @ApiResponse({
+    status: 201,
+    description: 'Co-WorkSpace has been successfully updated by admin.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBody({ type: AdminUpdateCoWorkingSpaceDto })
+  async adminUpdateCoWorkingSpace(
+    @Param('id') id: string,
+    @Body() adminUpdateDto: AdminUpdateCoWorkingSpaceDto,
+  ): Promise<CoWorkingSpace> {
+    return this.coWorkingSpacesService.adminUpdateCoworkingSpace(
+      id,
+      adminUpdateDto,
     );
   }
 }
