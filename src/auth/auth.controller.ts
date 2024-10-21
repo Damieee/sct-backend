@@ -223,4 +223,17 @@ export class AuthController {
       message: 'Avatar successfully deleted.',
     };
   }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {}
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req) {
+    const { accessToken } = await this.authService.findOrCreateUser(req.user);
+    return {
+      accessToken: accessToken,
+    };
+  }
 }
