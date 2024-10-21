@@ -29,17 +29,24 @@ export class AuthService {
     private fileService: FilesService,
   ) {}
 
-  async signUp(CreateUserDto: SignupCredentialsDto): Promise<User> {
-    const { email, full_name, password } = CreateUserDto;
+  async signUp(
+    createUserDto: SignupCredentialsDto,
+    isThirdPartyAuth: boolean = false,
+  ): Promise<User> {
+    const { email, full_name, password } = createUserDto;
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = isThirdPartyAuth
+      ? await bcrypt.hash(uuid(), salt) // Use a random password for third-party auth
+      : await bcrypt.hash(password, salt);
 
     const user = this.usersRepository.create({
       id: uuid(),
-      full_name: full_name,
-      email: email,
+      full_name,
+      email,
       password: hashedPassword,
+      isThirdPartyAuth,
     });
+
     try {
       await this.usersRepository.save(user);
       return user;
@@ -55,11 +62,15 @@ export class AuthService {
   async signIn(
     role: UserRole,
     signinCredentialsDto: SigninCredentialsDto,
+    isThirdPartyAuth: boolean = false,
   ): Promise<{ accessToken: string }> {
     const { email, password } = signinCredentialsDto;
-    const user = await this.usersRepository.findOneBy({ email: email });
+    const user = await this.usersRepository.findOneBy({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (
+      user &&
+      (isThirdPartyAuth || (await bcrypt.compare(password, user.password)))
+    ) {
       if (user.role !== role) {
         const roleMessage =
           role === UserRole.ADMIN
@@ -137,9 +148,8 @@ export class AuthService {
       );
 
       // Ensure the entityType is a valid key of user_ and cast the filteredEntities to the
-      user_[entityType as keyof User] = filteredEntities as any;
 
-      return user_;
+      return filteredEntities as any;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -169,12 +179,11 @@ export class AuthService {
           const filteredEntities = post[entityType].filter(
             (entity) => entity.status === status,
           );
-          post[entityType as keyof User] = filteredEntities as any;
-          return post;
+          return filteredEntities;
         })
         .filter((post) => post[entityType].length > 0); // Ensure only posts with matching entities are returned
 
-      return filteredPosts;
+      return filteredPosts as any;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -212,5 +221,35 @@ export class AuthService {
     } else {
       throw new NotFoundException('User does not have an avatar to delete.');
     }
+  }
+
+  async findOrCreateUser(
+    userDetails: UserDetails,
+  ): Promise<{ user: User; accessToken: string }> {
+    const { email, full_name, picture } = userDetails;
+    let user = await this.usersRepository.findOneBy({ email });
+
+    if (!user) {
+      // Use the signUp method for new users
+      user = await this.signUp(
+        { email, full_name, password: null, passwordConfirm: null }, // Password is not needed for third-party auth
+        true, // Indicate third-party authentication
+      );
+    }
+
+    // Update user's avatar if it doesn't exist
+    if (!user.avatar) {
+      const avatar = await this.fileService.uploadGoogleUrl(picture);
+      await this.usersRepository.update(user.id, { ...user, avatar });
+    }
+
+    // Use the signIn method to generate an access token
+    const tokens = await this.signIn(
+      user.role,
+      { email, password: null },
+      true,
+    );
+
+    return { user, ...tokens };
   }
 }

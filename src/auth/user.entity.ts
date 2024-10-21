@@ -32,9 +32,12 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Exclude()
   password: string;
+
+  @Column({ default: false })
+  isThirdPartyAuth: boolean;
 
   @JoinColumn()
   @OneToOne(() => File, { eager: true, nullable: true })
