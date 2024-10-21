@@ -21,6 +21,19 @@ async function bootstrap() {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       'JWT',
     )
+    .addOAuth2({
+      type: 'oauth2',
+      flows: {
+        authorizationCode: {
+          authorizationUrl: 'https://accounts.google.com/o/oauth2/v2/auth',
+          tokenUrl: 'https://oauth2.googleapis.com/token',
+          scopes: {
+            email: 'Access email',
+            profile: 'Access user profile',
+          },
+        },
+      },
+    })
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
 
@@ -33,6 +46,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('api-docs', app, document, {
     swaggerOptions: {
+      oauth2RedirectUrl: 'http://localhost:3000/auth/google/callback',
       persistAuthorization: true,
     },
   });
