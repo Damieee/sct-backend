@@ -38,6 +38,7 @@ import { RoleValidationPipe } from './role.validation';
 import { Status } from 'src/enums/status.enum';
 import { EntityType } from './entity-type.enum';
 import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -235,5 +236,25 @@ export class AuthController {
     return {
       accessToken: accessToken,
     };
+  }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER, UserRole.ADMIN) // Allow both USER and ADMIN roles
+  @Post('/change-password')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiBody({ type: ChangePasswordDto })
+  async changePassword(
+    @GetUser() user: User,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    await this.authService.changePassword(user, changePasswordDto);
+    return { message: 'Password changed successfully.' };
   }
 }

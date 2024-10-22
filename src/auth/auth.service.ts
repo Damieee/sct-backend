@@ -19,6 +19,7 @@ import { FilesService } from 'src/files/files.service';
 import { SigninCredentialsDto } from './dto/signin-credentials.dto';
 import { UserDetails } from './user-details.interface';
 import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -88,15 +89,29 @@ export class AuthService {
     }
   }
 
-  //   async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-  //     const user = await this.userService.findByEmail(forgotPasswordDto.email);
-  //     if (!user) {
-  //       throw new NotFoundException('User not found');
-  //     }
-  //     // Here is the logic to send a password reset email
-  //     // For simplicity, we'll just return a success message
-  //     return { message: 'Password reset link has been sent' };
-  //   }
+  async changePassword(
+    user: User,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    // Find the user
+    const user_ = await this.usersRepository.findOneBy({ id: user.id });
+    if (!user_) {
+      throw new NotFoundException('User not found...');
+    }
+    const { currentPassword, newPassword } = changePasswordDto;
+    // Compare the old password with the password in DB
+    const passwordMatch = await bcrypt.compare(currentPassword, user_.password);
+    if (!passwordMatch) {
+      throw new UnauthorizedException('Wrong credentials');
+    }
+    // Change user's password
+    const salt = await bcrypt.genSalt(); // Generate a new salt
+    const newHashedPassword = await bcrypt.hash(newPassword, salt); // Hash the new password with the new salt
+    user_.password = newHashedPassword;
+    await this.usersRepository.save(user_);
+    return { message: 'Password changed successfully.' };
+  }
+
   // }
 
   async getUserDetails(user: User): Promise<User> {
