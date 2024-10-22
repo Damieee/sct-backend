@@ -70,4 +70,10 @@ export class User {
     default: UserRole.USER,
   })
   role: UserRole;
+
+  @Column({ nullable: true })
+  resetPasswordToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpires: Date;
 }

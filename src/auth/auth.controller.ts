@@ -12,6 +12,7 @@ import {
   Req,
   Query,
   Param,
+  Put,
 } from '@nestjs/common';
 import { SignupCredentialsDto } from './dto/signup-credentials.dto';
 import { User } from './user.entity';
@@ -38,7 +39,9 @@ import { RoleValidationPipe } from './role.validation';
 import { Status } from 'src/enums/status.enum';
 import { EntityType } from './entity-type.enum';
 import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -77,15 +80,52 @@ export class AuthController {
   ): Promise<{ accessToken: string }> {
     return this.authService.signIn(role, signinCredentialsDto);
   }
-  //   @Post('forgot-password')
-  //   @HttpCode(HttpStatus.OK)
-  //   @ApiOperation({ summary: 'Request a password reset' })
-  //   @ApiResponse({ status: 200, description: 'Password reset link has been sent.' })
-  //   @ApiResponse({ status: 404, description: 'User not found.' })
-  //   @ApiBody({ type: ForgotPasswordDto })
-  //   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-  //     return this.authService.forgotPassword(forgotPasswordDto);
-  //   }
+
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles(UserRole.USER, UserRole.ADMIN) // Allow both USER and ADMIN roles
+  @Post('/change-password')
+  @ApiBearerAuth('JWT')
+  @ApiOperation({ summary: 'Change user password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password changed successfully.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiBody({ type: ChangePasswordDto })
+  async changePassword(
+    @GetUser() user: User,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    await this.authService.changePassword(user, changePasswordDto);
+    return { message: 'Password changed successfully.' };
+  }
+
+  @Post('/forgot-password')
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiOperation({ summary: 'Request a password reset' })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset link has been sent.',
+  })
+  @ApiResponse({ status: 404, description: 'User not found.' })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto);
+  }
+
+  @Put('reset-password')
+  @ApiQuery({
+    name: 'token',
+    description: 'The reset token sent to the user',
+    example: 'abc123token',
+  })
+  @ApiBody({ type: ResetPasswordDto })
+  async resetPassword(
+    @Query('token') token: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(token, resetPasswordDto);
+  }
 
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles(UserRole.USER)
@@ -236,25 +276,5 @@ export class AuthController {
     return {
       accessToken: accessToken,
     };
-  }
-
-  @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles(UserRole.USER, UserRole.ADMIN) // Allow both USER and ADMIN roles
-  @Post('/change-password')
-  @ApiBearerAuth('JWT')
-  @ApiOperation({ summary: 'Change user password' })
-  @ApiResponse({
-    status: 200,
-    description: 'Password changed successfully.',
-  })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  @ApiResponse({ status: 401, description: 'Unauthorized.' })
-  @ApiBody({ type: ChangePasswordDto })
-  async changePassword(
-    @GetUser() user: User,
-    @Body() changePasswordDto: ChangePasswordDto,
-  ): Promise<{ message: string }> {
-    await this.authService.changePassword(user, changePasswordDto);
-    return { message: 'Password changed successfully.' };
   }
 }

@@ -12,7 +12,7 @@ import { FilesService } from 'src/files/files.service';
 import { FileRepository } from 'src/files/files.repository';
 import { EventLikeRepository } from 'src/events/event-like.repository';
 import { GoogleStrategy } from './strategies/google.strategy';
-
+import { MailService } from 'src/services/mail.service';
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
@@ -37,6 +37,7 @@ import { GoogleStrategy } from './strategies/google.strategy';
     EventLikeRepository,
     JwtStrategy,
     FilesService,
+    MailService,
     FileRepository,
     GoogleStrategy,
   ],
