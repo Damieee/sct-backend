@@ -36,6 +36,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         EMAIL_JS_PASSWORD_RESET_TEMPLATE_ID: Joi.string().required(),
         EMAIL_JS_PUBLIC_KEY: Joi.string().required(),
         EMAIL_JS_PRIVATE_KEY: Joi.string().required(),
+        FRONTEND_URL: Joi.string().required(),
         PORT: Joi.number(),
       }),
     }),
