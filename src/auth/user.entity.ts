@@ -37,7 +37,23 @@ export class User {
   password: string;
 
   @Column({ default: false })
+  @Exclude()
   isThirdPartyAuth: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
+  })
+  role: UserRole;
+
+  @Column({ nullable: true })
+  @Exclude()
+  resetPasswordToken: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  @Exclude()
+  resetPasswordExpires: Date;
 
   @JoinColumn()
   @OneToOne(() => File, { eager: true, nullable: true })
@@ -63,17 +79,4 @@ export class User {
 
   @OneToMany(() => EventBookmark, (eventBookmark) => eventBookmark.user)
   bookmarkedEvents: EventBookmark[];
-
-  @Column({
-    type: 'enum',
-    enum: UserRole,
-    default: UserRole.USER,
-  })
-  role: UserRole;
-
-  @Column({ nullable: true })
-  resetPasswordToken: string;
-
-  @Column({ type: 'timestamp', nullable: true })
-  resetPasswordExpires: Date;
 }
