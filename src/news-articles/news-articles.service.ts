@@ -55,6 +55,11 @@ export class NewsArticlesService {
       query
         .leftJoinAndSelect('newsarticle.pictures', 'picture')
         .leftJoinAndSelect('newsarticle.user', 'user');
+
+      query.where('newsarticle.status = :status', {
+        status: Status.PUBLISHED,
+      });
+
       if (search) {
         query.andWhere(
           '(LOWER(newsarticle.title) LIKE LOWER(:search) OR LOWER(newsarticle.content) LIKE LOWER(:search))',

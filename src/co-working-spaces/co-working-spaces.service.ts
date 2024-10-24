@@ -70,8 +70,14 @@ export class CoWorkingSpacesService {
     query
       .leftJoinAndSelect('coworkingspace.pictures', 'picture')
       .leftJoinAndSelect('coworkingspace.user', 'user');
+
+    // Add condition to filter by published status
+    query.where('coworkingspace.status = :status', {
+      status: Status.PUBLISHED,
+    });
+
     if (search) {
-      query.where(
+      query.andWhere(
         '(LOWER(coworkingspace.name) LIKE LOWER(:search) OR LOWER(coworkingspace.location::text) LIKE LOWER(:search) OR LOWER(coworkingspace.website) LIKE LOWER(:search) OR LOWER(coworkingspace.email) LIKE LOWER(:search) OR LOWER(coworkingspace.phone_number) LIKE LOWER(:search))',
         { search: `%${search}%` },
       );

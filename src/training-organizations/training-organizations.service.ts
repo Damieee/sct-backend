@@ -73,6 +73,10 @@ export class TrainingOrganizationsService {
         .leftJoinAndSelect('trainingorganization.pictures', 'picture')
         .leftJoinAndSelect('trainingorganization.user', 'user');
 
+      query.where('trainingorganization.status = :status', {
+        status: Status.PUBLISHED,
+      });
+
       if (search) {
         query.andWhere(
           '(LOWER(trainingorganization.name) LIKE LOWER(:search) OR LOWER(trainingorganization.description) LIKE LOWER(:search) OR LOWER(trainingorganization.location::text) LIKE LOWER(:search) OR LOWER(trainingorganization.email) LIKE LOWER(:search))',

@@ -61,8 +61,12 @@ export class StartupsService {
       query
         .leftJoinAndSelect('startup.pictures', 'picture')
         .leftJoinAndSelect('startup.user', 'user');
+      query.where('startup.status = :status', {
+        status: Status.PUBLISHED,
+      });
+
       if (search) {
-        query.where(
+        query.andWhere(
           '(LOWER(startup.name) LIKE LOWER(:search) OR LOWER(startup.description) LIKE LOWER(:search) OR LOWER(startup.category::text) LIKE LOWER(:search) OR LOWER(startup.information::text) LIKE LOWER(:search) OR LOWER(startup.location::text) LIKE LOWER(:search))',
           { search: `%${search}%` },
         );

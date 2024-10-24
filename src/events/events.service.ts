@@ -91,6 +91,10 @@ export class EventsService {
         .leftJoinAndSelect('event.pictures', 'picture')
         .leftJoinAndSelect('event.user', 'user');
 
+      query.where('event.status = :status', {
+        status: Status.PUBLISHED,
+      });
+
       if (location) {
         query.andWhere('LOWER(event.location::text) LIKE LOWER(:location)', {
           location: `%${location}%`,
