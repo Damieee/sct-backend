@@ -18,16 +18,22 @@ import { RatingRepository } from './space-rating.repository';
 import { RateCoworkingSpaceDto } from './dto/rating.dto';
 import { Status } from 'src/enums/status.enum';
 import { AdminUpdateCoWorkingSpaceDto } from './dto/admin-update-co-working-space.dto';
+import { EmbeddingUtils } from 'src/utils/embedding-utils';
 
 @Injectable()
 export class CoWorkingSpacesService {
+  private embeddingUtils: EmbeddingUtils;
+
   constructor(
     @InjectRepository(CoWorkingSpaceRepository)
     @InjectRepository(RatingRepository)
     private coworkingspaceRepository: CoWorkingSpaceRepository,
     private ratingRepository: RatingRepository,
     private fileService: FilesService,
-  ) {}
+  ) {
+    this.embeddingUtils = new EmbeddingUtils(); // Instantiate EmbeddingUtils
+  }
+
   async createCoworkingspace(
     createCoWorkingSpaceDto: CreateCoWorkingSpaceDto,
     user: User,
@@ -42,6 +48,9 @@ export class CoWorkingSpacesService {
       opening_hour,
       phone_number,
     } = createCoWorkingSpaceDto;
+    const embedding = await this.embeddingUtils.generateEmbedding(
+      JSON.stringify(createCoWorkingSpaceDto),
+    );
     const coworkingspace = this.coworkingspaceRepository.create({
       name: name,
       location: location,
@@ -55,6 +64,7 @@ export class CoWorkingSpacesService {
       phone_number: phone_number,
       opening_hour: opening_hour,
       user,
+      embedding, // Save the generated embedding
     });
     await this.coworkingspaceRepository.save(coworkingspace);
     return coworkingspace;
@@ -103,7 +113,7 @@ export class CoWorkingSpacesService {
   async updateCoworkingSpace(
     id: string,
     user,
-    updateCoworkingSpaceDto: UpdateCoWorkingSpaceDto,
+    updateCoWorkingSpaceDto: UpdateCoWorkingSpaceDto,
   ): Promise<CoWorkingSpace> {
     // Retrieve the coworking space by ID
     const coworkingspace = await this.getcoWorkingSpaceById(id);
@@ -118,31 +128,35 @@ export class CoWorkingSpacesService {
       );
     }
     // Update the coworking space properties if provided
-    if (updateCoworkingSpaceDto.name) {
-      coworkingspace.name = updateCoworkingSpaceDto.name;
+    if (updateCoWorkingSpaceDto.name) {
+      coworkingspace.name = updateCoWorkingSpaceDto.name;
     }
-    if (updateCoworkingSpaceDto.location) {
-      coworkingspace.location = updateCoworkingSpaceDto.location;
+    if (updateCoWorkingSpaceDto.location) {
+      coworkingspace.location = updateCoWorkingSpaceDto.location;
     }
-    if (updateCoworkingSpaceDto.daily_rate) {
-      coworkingspace.daily_rate = updateCoworkingSpaceDto.daily_rate;
+    if (updateCoWorkingSpaceDto.daily_rate) {
+      coworkingspace.daily_rate = updateCoWorkingSpaceDto.daily_rate;
     }
-    if (updateCoworkingSpaceDto.facilities) {
-      coworkingspace.facilities = updateCoworkingSpaceDto.facilities;
+    if (updateCoWorkingSpaceDto.facilities) {
+      coworkingspace.facilities = updateCoWorkingSpaceDto.facilities;
     }
-    if (updateCoworkingSpaceDto.opening_hour) {
-      coworkingspace.opening_hour = updateCoworkingSpaceDto.opening_hour;
+    if (updateCoWorkingSpaceDto.opening_hour) {
+      coworkingspace.opening_hour = updateCoWorkingSpaceDto.opening_hour;
     }
-    if (updateCoworkingSpaceDto.email) {
-      coworkingspace.email = updateCoworkingSpaceDto.email;
+    if (updateCoWorkingSpaceDto.email) {
+      coworkingspace.email = updateCoWorkingSpaceDto.email;
     }
-    if (updateCoworkingSpaceDto.website) {
-      coworkingspace.website = updateCoworkingSpaceDto.website;
+    if (updateCoWorkingSpaceDto.website) {
+      coworkingspace.website = updateCoWorkingSpaceDto.website;
     }
-    if (updateCoworkingSpaceDto.phone_number) {
-      coworkingspace.phone_number = updateCoworkingSpaceDto.phone_number;
+    if (updateCoWorkingSpaceDto.phone_number) {
+      coworkingspace.phone_number = updateCoWorkingSpaceDto.phone_number;
     }
     coworkingspace.status = Status.PENDING;
+    const embedding = await this.embeddingUtils.generateEmbedding(
+      JSON.stringify(updateCoWorkingSpaceDto),
+    );
+    coworkingspace.embedding = embedding; // Update the embedding
 
     // Save the updated coworking space
     await this.coworkingspaceRepository.save(coworkingspace);
@@ -333,6 +347,33 @@ export class CoWorkingSpacesService {
         ratings,
         averageRating: isNaN(averageRating) ? 0 : averageRating,
       };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async vectorSearch(searchQuery: string): Promise<CoWorkingSpace[]> {
+    try {
+      const coworkingspaces = await this.coworkingspaceRepository.find();
+      const queryEmbedding =
+        await this.embeddingUtils.generateEmbedding(searchQuery);
+
+      // Use Promise.all to handle asynchronous operations
+      const similarityResults = await Promise.all(
+        coworkingspaces.map(async (space) => ({
+          space,
+          similarity: await this.embeddingUtils.cosineSimilarityAndDistance(
+            space.embedding,
+            queryEmbedding,
+            'cosine',
+          ),
+        })),
+      );
+
+      return similarityResults
+        .filter((item) => item.similarity.similarity > 0.5)
+        .sort((a, b) => b.similarity.similarity - a.similarity.similarity)
+        .map((item) => item.space);
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

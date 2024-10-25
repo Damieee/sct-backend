@@ -11,7 +11,6 @@ import { FilesModule } from './files/files.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +36,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         EMAIL_JS_PUBLIC_KEY: Joi.string().required(),
         EMAIL_JS_PRIVATE_KEY: Joi.string().required(),
         FRONTEND_URL: Joi.string().required(),
+        OPENAI_API_KEY: Joi.string().required(),
         PORT: Joi.number(),
       }),
     }),

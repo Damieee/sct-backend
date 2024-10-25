@@ -23,6 +23,7 @@ import {
   ApiBody,
   ApiBearerAuth,
   ApiConsumes,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/get-user.decorator';
@@ -234,5 +235,23 @@ export class CoWorkingSpacesController {
       id,
       adminUpdateDto,
     );
+  }
+
+  @Get('/vectorsearch/:query')
+  @ApiOperation({ summary: 'Vector Search Co-WorkSpaces' })
+  @ApiResponse({
+    status: 201,
+    description: 'Co-WorkSpace has been successfully retrieved.',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiQuery({ name: 'query', type: String })
+  async vectorSearch(
+    @Query('query') searchQuery: string,
+  ): Promise<CoWorkingSpace[]> {
+    try {
+      return this.coWorkingSpacesService.vectorSearch(searchQuery);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 }

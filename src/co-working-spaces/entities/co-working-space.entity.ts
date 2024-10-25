@@ -10,7 +10,7 @@ import {
 import { User } from '../../auth/user.entity';
 import { File } from 'src/files/entities/file.entity';
 import { Status } from 'src/enums/status.enum';
-
+import { Exclude } from 'class-transformer';
 @Entity()
 export class CoWorkingSpace {
   @PrimaryGeneratedColumn('uuid')
@@ -72,6 +72,10 @@ export class CoWorkingSpace {
 
   @Column({ type: 'text', nullable: true })
   adminComment?: string;
+
+  @Column('float', { array: true, nullable: false })
+  @Exclude()
+  embedding: number[];
 
   @ManyToOne(() => User, (user) => user.coWorkingSpaces, {
     eager: true,
