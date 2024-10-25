@@ -25,7 +25,7 @@ import * as crypto from 'crypto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { MailService } from 'src/services/mail.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 @Injectable()
 export class AuthService {
   constructor(
@@ -70,7 +70,7 @@ export class AuthService {
     role: UserRole,
     signinCredentialsDto: SigninCredentialsDto,
     isThirdPartyAuth: boolean = false,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const { email, password } = signinCredentialsDto;
     const user = await this.usersRepository.findOneBy({ email });
 
@@ -87,9 +87,12 @@ export class AuthService {
           `Invalid role: This section is ${roleMessage}.`,
         );
       }
-      const payload: JwtPayload = { email };
+      const payload: JwtPayload = { email, sub: user.id };
       const accessToken = await this.jwtService.sign(payload);
-      return { accessToken };
+      const refreshToken = await this.jwtService.sign(payload, {
+        expiresIn: '7d', // Set refresh token expiration
+      });
+      return { accessToken, refreshToken };
     } else {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -292,7 +295,7 @@ export class AuthService {
 
   async findOrCreateUser(
     userDetails: UserDetails,
-  ): Promise<{ user: User; accessToken: string }> {
+  ): Promise<{ user: User; accessToken: string; refreshToken: string }> {
     const { email, full_name, picture } = userDetails;
     let user = await this.usersRepository.findOneBy({ email });
 
@@ -318,5 +321,25 @@ export class AuthService {
     );
 
     return { user, ...tokens };
+  }
+
+  async refreshAccessToken(
+    refreshTokenDto: RefreshTokenDto,
+  ): Promise<{ accessToken: string }> {
+    const { refreshToken } = refreshTokenDto;
+    try {
+      const payload = this.jwtService.verify(refreshToken);
+      const user = await this.usersRepository.findOneBy({ id: payload.sub });
+
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
+
+      const newPayload: JwtPayload = { email: user.email, sub: user.id };
+      const accessToken = await this.jwtService.sign(newPayload);
+      return { accessToken };
+    } catch (error) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }

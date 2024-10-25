@@ -42,6 +42,7 @@ import { GetUserEntityDetailsDto } from './dto/get-user-entity-details.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -272,9 +273,25 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
   async googleAuthRedirect(@Req() req) {
-    const { accessToken } = await this.authService.findOrCreateUser(req.user);
+    const { accessToken, refreshToken } =
+      await this.authService.findOrCreateUser(req.user);
     return {
       accessToken: accessToken,
+      refreshToken: refreshToken,
     };
+  }
+
+  @Post('/refresh-token')
+  @ApiOperation({ summary: 'Refresh access token' })
+  @ApiResponse({
+    status: 200,
+    description: 'Access token refreshed successfully.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized.' })
+  @ApiBody({ type: RefreshTokenDto })
+  async refreshToken(
+    @Body() refreshTokenDto: RefreshTokenDto,
+  ): Promise<{ accessToken: string }> {
+    return this.authService.refreshAccessToken(refreshTokenDto);
   }
 }
