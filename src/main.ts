@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptor } from './transform.interceptor';
 import { Status } from './enums/status.enum';
+import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -43,7 +44,18 @@ async function bootstrap() {
     enum: Object.values(Status),
     description: 'The status of the item',
   };
-
+  app.use(
+    '/reference',
+    apiReference({
+      theme: 'kepler',
+      layout: 'classic',
+      defaultHttpClient: {
+        targetKey: 'javascript',
+        clientKey: 'fetch',
+      },
+      content: document,
+    }),
+  );
   SwaggerModule.setup('api-docs', app, document, {
     swaggerOptions: {
       oauth2RedirectUrl: 'http://localhost:3000/auth/google/callback',
