@@ -11,10 +11,13 @@ import { TrainingOrganization } from '../training-organizations/entities/trainin
 import { CoWorkingSpace } from '../co-working-spaces/entities/co-working-space.entity';
 import { Startup } from '../startups/entities/startup.entity';
 import { NewsArticle } from '../news-articles/entities/news-article.entity';
+import { UnifiedEntity } from '../unified-entities/unified-entity.entity';
 import { File } from 'src/files/entities/file.entity';
 import { Exclude } from 'class-transformer';
 import { EventLike } from 'src/events/entities/event-likes.entity';
 import { EventBookmark } from 'src/events/entities/event-bookmarks.entity';
+import { UnifiedEntityLike } from 'src/unified-entities/entities/unified-entity-like.entity';
+import { UnifiedEntityBookmark } from 'src/unified-entities/entities/unified-entity-bookmark.entity';
 
 export enum UserRole {
   USER = 'user',
@@ -79,4 +82,13 @@ export class User {
 
   @OneToMany(() => EventBookmark, (eventBookmark) => eventBookmark.user)
   bookmarkedEvents: EventBookmark[];
+
+  @OneToMany(() => UnifiedEntity, (unifiedEntity) => unifiedEntity.user)
+  unifiedEntities: UnifiedEntity[];
+
+  @OneToMany(() => UnifiedEntityLike, (unifiedEntityLike) => unifiedEntityLike.user)
+  likedUnifiedEntities: UnifiedEntityLike[];
+
+  @OneToMany(() => UnifiedEntityBookmark, (unifiedEntityBookmark) => unifiedEntityBookmark.user)
+  bookmarkedUnifiedEntities: UnifiedEntityBookmark[];
 }

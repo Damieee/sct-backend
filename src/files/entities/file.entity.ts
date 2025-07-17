@@ -3,6 +3,7 @@ import { Event } from 'src/events/entities/event.entity';
 import { NewsArticle } from 'src/news-articles/entities/news-article.entity';
 import { Startup } from 'src/startups/entities/startup.entity';
 import { TrainingOrganization } from 'src/training-organizations/entities/training-organization.entity';
+import { UnifiedEntity } from 'src/unified-entities/unified-entity.entity';
 import {
   Column,
   ManyToOne,
@@ -55,6 +56,15 @@ export class File {
     },
   )
   trainingorganization: TrainingOrganization;
+
+  @ManyToOne(
+    () => UnifiedEntity,
+    (unifiedEntity) => unifiedEntity.pictures,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  unifiedEntity: UnifiedEntity;
 
   @CreateDateColumn()
   created_at: Date;
