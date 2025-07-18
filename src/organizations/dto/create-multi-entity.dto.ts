@@ -221,12 +221,12 @@ export class StartupDataDto {
   @IsOptional()
   logo?: string;
 
-  @ApiPropertyOptional({
-    description: 'Startup tags',
+  @ApiProperty({
+    description: 'Startup tags (required)',
     example: { tags: ['fintech', 'payments', 'digital'] }
   })
-  @IsOptional()
-  tags?: any;
+  @IsNotEmpty()
+  tags: any;
 }
 
 // Event data DTO
@@ -532,7 +532,8 @@ export class EntityDataDto {
             phoneNumber: '+2348012345678',
             email: 'info@techstartup.com'
           },
-          logo: 'https://example.com/startup-logo.png'
+          logo: 'https://example.com/startup-logo.png',
+          tags: { tags: ['fintech', 'payments', 'digital'] }
         }
       },
       event: {
@@ -703,7 +704,8 @@ export class CreateMultiEntityDto {
             phoneNumber: '+2348012345678',
             email: 'info@techstartup.com'
           },
-          logo: 'https://example.com/startup-logo.png'
+          logo: 'https://example.com/startup-logo.png',
+          tags: { tags: ['fintech', 'payments', 'digital'] }
         }
       },
       {

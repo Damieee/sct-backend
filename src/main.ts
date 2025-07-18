@@ -10,6 +10,29 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Enable CORS
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'https://test.secondarycity.tech',
+      'http://localhost:3001', // Common frontend dev port
+      'http://localhost:5173', // Vite dev server
+      'http://localhost:8080', // Common alternative port
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Cache-Control',
+      'Pragma',
+    ],
+    credentials: true,
+  });
+  
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
     transformOptions: {
