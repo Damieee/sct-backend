@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { Event } from './event.entity';
-import { User } from 'src/auth/user.entity';
+import { User } from '../../auth/user.entity';
 
 @Entity()
 export class EventLike {

@@ -10,8 +10,8 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { User } from '../../auth/user.entity';
 import { Category } from '../category.enum';
-import { File } from 'src/files/entities/file.entity';
-import { Status } from 'src/enums/status.enum';
+import { File } from '../../files/entities/file.entity';
+import { Status } from '../../enums/status.enum';
 
 @Entity()
 export class NewsArticle {

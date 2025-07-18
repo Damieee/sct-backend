@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { User } from '../../auth/user.entity';
 import { EventType } from '../event-type.enum';
-import { File } from 'src/files/entities/file.entity';
+import { File } from '../../files/entities/file.entity';
 import { Category } from '../category.enum';
 import { EventLike } from './event-likes.entity';
 import { EventBookmark } from './event-bookmarks.entity';

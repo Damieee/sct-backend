@@ -12,7 +12,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { EntityType } from '../../auth/entity-type.enum';
-import { Category } from '../../events/category.enum';
+import { Category } from '../../shared/category.enum';
 import { EventType } from '../../events/event-type.enum';
 import { Weekdays } from '../../co-working-spaces/weekdays.enum';
 

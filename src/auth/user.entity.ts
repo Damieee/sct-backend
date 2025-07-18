@@ -12,12 +12,12 @@ import { CoWorkingSpace } from '../co-working-spaces/entities/co-working-space.e
 import { Startup } from '../startups/entities/startup.entity';
 import { NewsArticle } from '../news-articles/entities/news-article.entity';
 import { UnifiedEntity } from '../unified-entities/unified-entity.entity';
-import { File } from 'src/files/entities/file.entity';
+import { File } from '../files/entities/file.entity';
 import { Exclude } from 'class-transformer';
-import { EventLike } from 'src/events/entities/event-likes.entity';
-import { EventBookmark } from 'src/events/entities/event-bookmarks.entity';
-import { UnifiedEntityLike } from 'src/unified-entities/entities/unified-entity-like.entity';
-import { UnifiedEntityBookmark } from 'src/unified-entities/entities/unified-entity-bookmark.entity';
+import { EventLike } from '../events/entities/event-likes.entity';
+import { EventBookmark } from '../events/entities/event-bookmarks.entity';
+import { UnifiedEntityLike } from '../unified-entities/entities/unified-entity-like.entity';
+import { UnifiedEntityBookmark } from '../unified-entities/entities/unified-entity-bookmark.entity';
 
 export enum UserRole {
   USER = 'user',

@@ -5,7 +5,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { UnifiedEntity } from '../unified-entity.entity';
-import { User } from 'src/auth/user.entity';
+import { User } from '../../auth/user.entity';
 
 @Entity()
 export class UnifiedEntityBookmark {

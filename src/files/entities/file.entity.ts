@@ -1,9 +1,9 @@
-import { CoWorkingSpace } from 'src/co-working-spaces/entities/co-working-space.entity';
-import { Event } from 'src/events/entities/event.entity';
-import { NewsArticle } from 'src/news-articles/entities/news-article.entity';
-import { Startup } from 'src/startups/entities/startup.entity';
-import { TrainingOrganization } from 'src/training-organizations/entities/training-organization.entity';
-import { UnifiedEntity } from 'src/unified-entities/unified-entity.entity';
+import { CoWorkingSpace } from '../../co-working-spaces/entities/co-working-space.entity';
+import { Event } from '../../events/entities/event.entity';
+import { NewsArticle } from '../../news-articles/entities/news-article.entity';
+import { Startup } from '../../startups/entities/startup.entity';
+import { TrainingOrganization } from '../../training-organizations/entities/training-organization.entity';
+import { UnifiedEntity } from '../../unified-entities/unified-entity.entity';
 import {
   Column,
   ManyToOne,

@@ -11,7 +11,7 @@ import { User } from '../auth/user.entity';
 import { File } from '../files/entities/file.entity';
 import { Status } from '../enums/status.enum';
 import { EntityType } from '../auth/entity-type.enum';
-import { Category } from '../events/category.enum';
+import { Category } from '../shared/category.enum';
 import { EventType } from '../events/event-type.enum';
 import { Weekdays } from '../co-working-spaces/weekdays.enum';
 import { UnifiedEntityLike } from './entities/unified-entity-like.entity';
