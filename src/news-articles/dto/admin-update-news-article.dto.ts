@@ -6,7 +6,7 @@ export class AdminUpdateNewsArticleDto {
   @ApiProperty({
     description: 'Status of the news article',
     enum: Status,
-    example: Status.PUBLISHED,
+    example: Status.APPROVED,
   })
   @IsEnum(Status)
   @IsNotEmpty()

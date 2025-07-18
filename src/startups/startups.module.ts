@@ -20,5 +20,6 @@ import { FileRepository } from 'src/files/files.repository';
     FilesService,
     FileRepository,
   ],
+  exports: [StartupsService],
 })
 export class StartupsModule {}

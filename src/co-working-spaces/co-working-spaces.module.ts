@@ -25,5 +25,6 @@ import { SpaceRating } from './entities/space-rating.entity';
     FileRepository,
     ConfigService,
   ],
+  exports: [CoWorkingSpacesService],
 })
 export class CoWorkingSpacesModule {}

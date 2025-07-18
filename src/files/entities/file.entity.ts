@@ -2,8 +2,7 @@ import { CoWorkingSpace } from '../../co-working-spaces/entities/co-working-spac
 import { Event } from '../../events/entities/event.entity';
 import { NewsArticle } from '../../news-articles/entities/news-article.entity';
 import { Startup } from '../../startups/entities/startup.entity';
-import { TrainingOrganization } from '../../training-organizations/entities/training-organization.entity';
-import { UnifiedEntity } from '../../unified-entities/unified-entity.entity';
+import { Organization } from '../../organizations/entities/organization.entity';
 import {
   Column,
   ManyToOne,
@@ -48,23 +47,15 @@ export class File {
   })
   startup: Startup;
 
-  @ManyToOne(
-    () => TrainingOrganization,
-    (trainingorganization) => trainingorganization.pictures,
-    {
-      onDelete: 'CASCADE',
-    },
-  )
-  trainingorganization: TrainingOrganization;
 
   @ManyToOne(
-    () => UnifiedEntity,
-    (unifiedEntity) => unifiedEntity.pictures,
+    () => Organization,
+    (organization) => organization.pictures,
     {
       onDelete: 'CASCADE',
     },
   )
-  unifiedEntity: UnifiedEntity;
+  organization: Organization;
 
   @CreateDateColumn()
   created_at: Date;

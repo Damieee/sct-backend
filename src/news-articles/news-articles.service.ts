@@ -57,7 +57,7 @@ export class NewsArticlesService {
         .leftJoinAndSelect('newsarticle.user', 'user');
 
       query.where('newsarticle.status = :status', {
-        status: Status.PUBLISHED,
+        status: Status.APPROVED,
       });
 
       if (search) {
@@ -201,7 +201,7 @@ export class NewsArticlesService {
     }
     const { status, adminComment } = adminUpdateDto;
 
-    if (status === Status.NOT_ACCEPTED && !adminComment) {
+    if (status === Status.REJECTED && !adminComment) {
       throw new BadRequestException('A comment is required when rejecting.');
     }
 

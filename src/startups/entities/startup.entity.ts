@@ -52,6 +52,21 @@ export class Startup {
   @Column('json')
   tags: JSON;
 
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  funding_stage?: string;
+
+  @Column({ type: 'int', nullable: true })
+  team_size?: number;
+
+  @Column({ type: 'int', nullable: true })
+  founded_year?: number;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  industry?: string;
+
+  @Column({ type: 'text', nullable: true })
+  business_model?: string;
+
   @Column({ type: 'float', default: 0 })
   averageRating: number;
 

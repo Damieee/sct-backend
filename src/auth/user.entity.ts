@@ -7,17 +7,14 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Event } from '../events/entities/event.entity';
-import { TrainingOrganization } from '../training-organizations/entities/training-organization.entity';
 import { CoWorkingSpace } from '../co-working-spaces/entities/co-working-space.entity';
 import { Startup } from '../startups/entities/startup.entity';
 import { NewsArticle } from '../news-articles/entities/news-article.entity';
-import { UnifiedEntity } from '../unified-entities/unified-entity.entity';
 import { File } from '../files/entities/file.entity';
 import { Exclude } from 'class-transformer';
 import { EventLike } from '../events/entities/event-likes.entity';
 import { EventBookmark } from '../events/entities/event-bookmarks.entity';
-import { UnifiedEntityLike } from '../unified-entities/entities/unified-entity-like.entity';
-import { UnifiedEntityBookmark } from '../unified-entities/entities/unified-entity-bookmark.entity';
+import { Organization } from '../organizations/entities/organization.entity';
 
 export enum UserRole {
   USER = 'user',
@@ -65,9 +62,6 @@ export class User {
   @OneToMany(() => Event, (event) => event.user)
   events: Event[];
 
-  @OneToMany(() => TrainingOrganization, (organization) => organization.user)
-  trainingOrganizations: TrainingOrganization[];
-
   @OneToMany(() => CoWorkingSpace, (coWorkingSpace) => coWorkingSpace.user)
   coWorkingSpaces: CoWorkingSpace[];
 
@@ -83,12 +77,6 @@ export class User {
   @OneToMany(() => EventBookmark, (eventBookmark) => eventBookmark.user)
   bookmarkedEvents: EventBookmark[];
 
-  @OneToMany(() => UnifiedEntity, (unifiedEntity) => unifiedEntity.user)
-  unifiedEntities: UnifiedEntity[];
-
-  @OneToMany(() => UnifiedEntityLike, (unifiedEntityLike) => unifiedEntityLike.user)
-  likedUnifiedEntities: UnifiedEntityLike[];
-
-  @OneToMany(() => UnifiedEntityBookmark, (unifiedEntityBookmark) => unifiedEntityBookmark.user)
-  bookmarkedUnifiedEntities: UnifiedEntityBookmark[];
+  @OneToMany(() => Organization, (organization) => organization.user)
+  organizations: Organization[];
 }

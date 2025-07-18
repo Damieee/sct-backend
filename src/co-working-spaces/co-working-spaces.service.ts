@@ -83,7 +83,7 @@ export class CoWorkingSpacesService {
 
     // Add condition to filter by published status
     query.where('coworkingspace.status = :status', {
-      status: Status.PUBLISHED,
+      status: Status.APPROVED,
     });
 
     if (search) {
@@ -179,7 +179,7 @@ export class CoWorkingSpacesService {
     const { status, adminComment } = adminUpdateDto;
 
     // Check if the status is REJECTED and a comment is provided
-    if (status === Status.NOT_ACCEPTED && !adminComment) {
+    if (status === Status.REJECTED && !adminComment) {
       throw new BadRequestException('A comment is required when rejecting.');
     }
 

@@ -10,7 +10,12 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
+  }));
   app.useGlobalInterceptors(new TransformInterceptor());
   const swaggerConfig = new DocumentBuilder()
     .setTitle('SCT-BACKEND API Documentation')
@@ -41,7 +46,7 @@ async function bootstrap() {
   // Add the enum schema manually
   document.components.schemas['Status'] = {
     type: 'string',
-    enum: Object.values(Status),
+    enum: ['pending', 'published', 'Not Accepted'],
     description: 'The status of the item',
   };
   app.use(

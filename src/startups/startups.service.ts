@@ -62,7 +62,7 @@ export class StartupsService {
         .leftJoinAndSelect('startup.pictures', 'picture')
         .leftJoinAndSelect('startup.user', 'user');
       query.where('startup.status = :status', {
-        status: Status.PUBLISHED,
+        status: Status.APPROVED,
       });
 
       if (search) {
@@ -265,7 +265,7 @@ export class StartupsService {
     }
     const { status, adminComment } = adminUpdateDto;
 
-    if (status === Status.NOT_ACCEPTED && !adminComment) {
+    if (status === Status.REJECTED && !adminComment) {
       throw new BadRequestException('A comment is required when rejecting.');
     }
 

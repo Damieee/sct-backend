@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
-import { TrainingOrganizationsModule } from './training-organizations/training-organizations.module';
 import { CoWorkingSpacesModule } from './co-working-spaces/co-working-spaces.module';
 import { StartupsModule } from './startups/startups.module';
 import { NewsArticlesModule } from './news-articles/news-articles.module';
-import { UnifiedEntitiesModule } from './unified-entities/unified-entities.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { FilesModule } from './files/files.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -68,11 +68,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       imports: [ConfigModule],
     }),
     EventsModule,
-    TrainingOrganizationsModule,
     CoWorkingSpacesModule,
     StartupsModule,
     NewsArticlesModule,
-    UnifiedEntitiesModule,
+    OrganizationsModule,
+    SharedModule,
     AuthModule,
     FilesModule,
   ],

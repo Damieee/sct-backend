@@ -10,9 +10,10 @@ import {
 import { User } from '../../auth/user.entity';
 import { File } from '../../files/entities/file.entity';
 import { Status } from '../../enums/status.enum';
+import { OrganizationSubcategory } from '../../shared/organization-subcategory.enum';
 
 @Entity()
-export class TrainingOrganization {
+export class Organization {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -21,6 +22,18 @@ export class TrainingOrganization {
 
   @Column()
   description: string;
+
+  @Column({
+    type: 'enum',
+    enum: OrganizationSubcategory,
+  })
+  subcategory: OrganizationSubcategory;
+
+  @Column('json', { nullable: true })
+  services_offered?: string[];
+
+  @Column('json', { nullable: true })
+  target_audience?: string[];
 
   @Column('json')
   location: {
@@ -34,8 +47,14 @@ export class TrainingOrganization {
     postal_code: string;
   };
 
-  @Column('simple-json')
-  courses: string[];
+  @Column()
+  website: string;
+
+  @Column()
+  email: string;
+
+  @Column()
+  phone_number: string;
 
   @Column()
   logo: string;
@@ -49,22 +68,13 @@ export class TrainingOrganization {
   @Column({ default: 0 })
   ratingsCount: number;
 
-  @Column('json')
-  opening_hour: {
+  @Column('json', { nullable: true })
+  opening_hour?: {
     week_start: string;
     week_end: string;
     opening_time: string;
     closing_time: string;
   };
-
-  @Column()
-  website: string;
-
-  @Column()
-  email: string;
-
-  @Column()
-  phone_number: string;
 
   @Column({
     type: 'enum',
@@ -76,13 +86,13 @@ export class TrainingOrganization {
   @Column({ type: 'text', nullable: true })
   adminComment?: string;
 
-  @ManyToOne(() => User, (user) => user.trainingOrganizations, {
+  @ManyToOne(() => User, (user) => user.organizations, {
     eager: true,
     onDelete: 'CASCADE',
   })
   user: User;
 
-  @OneToMany(() => File, (file) => file.trainingorganization, {
+  @OneToMany(() => File, (file) => file.organization, {
     cascade: true,
     eager: true,
   })
@@ -93,4 +103,4 @@ export class TrainingOrganization {
 
   @UpdateDateColumn()
   updated_at: Date;
-}
+} 

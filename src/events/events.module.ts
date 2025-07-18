@@ -26,5 +26,6 @@ import { EventBookmark } from './entities/event-bookmarks.entity';
     EventBookmarkRepository,
     EventLikeRepository,
   ],
+  exports: [EventsService],
 })
 export class EventsModule {}

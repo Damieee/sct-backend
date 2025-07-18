@@ -6,7 +6,7 @@ export class AdminUpdateEventDto {
   @ApiProperty({
     description: 'Status of the event',
     enum: Status,
-    example: Status.PUBLISHED,
+    example: Status.APPROVED,
   })
   @IsEnum(Status)
   @IsNotEmpty()

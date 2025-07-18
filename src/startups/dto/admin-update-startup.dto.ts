@@ -6,7 +6,7 @@ export class AdminUpdateStartupDto {
   @ApiProperty({
     description: 'Status of the startup',
     enum: Status,
-    example: Status.PUBLISHED,
+    example: Status.APPROVED,
   })
   @IsEnum(Status)
   @IsNotEmpty()

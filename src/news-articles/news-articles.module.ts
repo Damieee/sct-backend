@@ -17,5 +17,6 @@ import { FileRepository } from 'src/files/files.repository';
     FilesService,
     FileRepository,
   ],
+  exports: [NewsArticlesService],
 })
 export class NewsArticlesModule {}

@@ -92,7 +92,7 @@ export class EventsService {
         .leftJoinAndSelect('event.user', 'user');
 
       query.where('event.status = :status', {
-        status: Status.PUBLISHED,
+        status: Status.APPROVED,
       });
 
       if (location) {
@@ -388,7 +388,7 @@ export class EventsService {
     }
     const { status, adminComment } = adminUpdateDto;
 
-    if (status === Status.NOT_ACCEPTED && !adminComment) {
+    if (status === Status.REJECTED && !adminComment) {
       throw new BadRequestException('A comment is required when rejecting.');
     }
 

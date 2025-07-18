@@ -6,7 +6,7 @@ export class AdminUpdateCoWorkingSpaceDto {
   @ApiProperty({
     description: 'Status of the coworking space',
     enum: Status,
-    example: Status.PUBLISHED,
+    example: Status.APPROVED,
   })
   @IsEnum(Status)
   @IsNotEmpty()
